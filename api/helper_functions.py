@@ -41,14 +41,20 @@ async def execute_single_llm_chat(
     """
     request_time = datetime.now(timezone.utc)
     try:
-        answer_text = await chain.ainvoke({
+        # The chain will now return a dictionary with 'answer' and 'raw' keys.
+        response_dict = await chain.ainvoke({
             "input": request_data.question,
             "chat_history": langchain_history
         })
+        # Extract the individual components from the response dictionary.
+        answer_text = response_dict.get("answer")
+        raw_model_output = response_dict.get("raw") 
+        
         response_time = datetime.now(timezone.utc)
         latency = (response_time - request_time).total_seconds() * 1000
         return QueryResponse(
             answer=answer_text,
+            raw_response=raw_model_output,
             session_id=request_data.session_id,
             model=model_name_enum,
             provider=model_name_enum.get_provider(),

@@ -3,13 +3,13 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables import Runnable
+from langchain_core.runnables import Runnable, RunnableParallel, RunnablePassthrough
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from typing import List, Dict, Any 
 
 
 # Common components for simple chains
-output_parser = StrOutputParser()
+# output_parser = StrOutputParser()
 
 chat_llm_prompt = ChatPromptTemplate.from_messages(
     [
@@ -17,6 +17,11 @@ chat_llm_prompt = ChatPromptTemplate.from_messages(
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{input}")
     ]
+)
+
+output_structure_chain = RunnableParallel(
+    raw=RunnablePassthrough(),
+    answer=StrOutputParser()
 )
 
 
@@ -34,7 +39,7 @@ def get_openai_llm_chain(model_name: str) -> Runnable:
                   "chat_history" can be an empty list for the first turn.
     """
     llm = ChatOpenAI(model=model_name)
-    chain = chat_llm_prompt | llm | output_parser
+    chain = chat_llm_prompt | llm | output_structure_chain
     return chain
 
 def get_google_llm_chain(model_name: str) -> Runnable:
@@ -51,7 +56,7 @@ def get_google_llm_chain(model_name: str) -> Runnable:
                   "chat_history" can be an empty list for the first turn.
     """
     llm = ChatGoogleGenerativeAI(model=model_name)
-    chain = chat_llm_prompt | llm | output_parser
+    chain = chat_llm_prompt | llm | output_structure_chain
     return chain
 
 def get_groq_llm_chain(model_name: str) -> Runnable:
@@ -68,7 +73,7 @@ def get_groq_llm_chain(model_name: str) -> Runnable:
                   "chat_history" can be an empty list for the first turn.
     """
     llm = ChatGroq(model=model_name) # Groq uses model_name parameter
-    chain = chat_llm_prompt | llm | output_parser
+    chain = chat_llm_prompt | llm | output_structure_chain
     return chain
 
 

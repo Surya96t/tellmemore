@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, field_validator, ValidationError
 from enum import Enum
 from datetime import datetime, timezone
-from typing import Optional, List
+from typing import Optional, List, Any
 import uuid
 
 class ModelProvider(str, Enum):
@@ -132,6 +132,7 @@ class QueryResponse(BaseModel):
         latency_ms (float): The total time taken to receive the model's response, in milliseconds.
     """
     answer: Optional[str] = None
+    raw_response: Optional[Any] = None
     error_message: Optional[str] = None
     session_id: str
     model: ModelName
