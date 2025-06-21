@@ -1,0 +1,178 @@
+<!-- TellMeMore_Frontend/frontend_app/templates/auth.html -->
+{% extends "base.html" %}
+
+{% block title %}Login / Register{% endblock %}
+
+{% block content %}
+<div class="container d-flex flex-grow-1 align-items-center justify-content-center py-4">
+    <div class="card shadow-lg p-4 p-md-5 w-100" style="max-width: 450px; border-radius: 1rem;">
+        <h2 id="auth-title" class="card-title text-center mb-4 fw-bold">
+            Login to TellMeMore
+        </h2>
+        <form id="auth-form" class="needs-validation" novalidate>
+            <div id="name-field" class="mb-3" style="display: none;">
+                <label for="name" class="form-label fw-bold">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Your Name">
+                <div class="invalid-feedback">
+                    Please provide a name.
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label fw-bold">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="your@example.com" required>
+                <div class="invalid-feedback">
+                    Please enter a valid email.
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="form-label fw-bold">Password</label>
+                <input type="password" class="form-control" id="password" placeholder="********" required>
+                <div class="invalid-feedback">
+                    Please enter your password.
+                </div>
+            </div>
+            <button id="submit-button" type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 0.5rem;">
+                Login
+            </button>
+        </form>
+        <div class="text-center mt-4">
+            <p class="text-muted">
+                Don't have an account?
+                <button id="toggle-auth-mode" class="btn btn-link p-0 text-decoration-none fw-bold">
+                    Register here
+                </button>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let isRegisterMode = false;
+
+    const authTitle = document.getElementById('auth-title');
+    const nameField = document.getElementById('name-field');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const submitButton = document.getElementById('submit-button');
+    const toggleAuthModeButton = document.getElementById('toggle-auth-mode');
+    const authForm = document.getElementById('auth-form');
+
+    function updateUI() {
+        if (isRegisterMode) {
+            authTitle.textContent = 'Register for TellMeMore';
+            nameField.style.display = 'block';
+            nameInput.setAttribute('required', 'required');
+            submitButton.textContent = 'Register';
+            toggleAuthModeButton.textContent = 'Login here';
+            toggleAuthModeButton.parentNode.innerHTML = `Already have an account? <button id="toggle-auth-mode" class="btn btn-link p-0 text-decoration-none fw-bold">Login here</button>`;
+        } else {
+            authTitle.textContent = 'Login to TellMeMore';
+            nameField.style.display = 'none';
+            nameInput.removeAttribute('required');
+            submitButton.textContent = 'Login';
+            toggleAuthModeButton.textContent = 'Register here';
+            toggleAuthModeButton.parentNode.innerHTML = `Don't have an account? <button id="toggle-auth-mode" class="btn btn-link p-0 text-decoration-none fw-bold">Register here</button>`;
+        }
+        // Re-attach event listener
+        document.getElementById('toggle-auth-mode').onclick = () => {
+            isRegisterMode = !isRegisterMode;
+            updateUI();
+        };
+    }
+
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        authForm.classList.add('was-validated');
+
+        if (!authForm.checkValidity()) {
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = 'Processing...';
+
+        const email = emailInput.value;
+        const password = passwordInput.value;
+        const name = isRegisterMode ? nameInput.value : '';
+
+        const authUrl = isRegisterMode ? '/auth/register' : '/auth/login';
+        const authBody = isRegisterMode ? { name, email, password } : { email, password };
+
+        try {
+            console.log('Sending auth request to backend:', `${API_BASE_URL}${authUrl}`);
+            console.log('Auth request body:', authBody);
+
+            // 1. Send request to your backend DataAccess API
+            const authResponse = await fetch(`${API_BASE_URL}${authUrl}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(authBody)
+            });
+
+            const authData = await authResponse.json();
+            console.log('Backend Auth API Response:', authData);
+
+            if (authResponse.ok) {
+                showMessageBox(authData.message || 'Operation successful!', 'success');
+                if (!isRegisterMode && authData.access_token) {
+                    // --- CRUCIAL CHANGE: Store JWT in localStorage ---
+                    localStorage.setItem('jwt_token', authData.access_token);
+                    console.log('JWT stored in localStorage:', localStorage.getItem('jwt_token'));
+                    // --- END CRUCIAL CHANGE ---
+
+                    // 2. If login is successful, send JWT and user data to frontend Flask app to set server-side session
+                    const handleLoginResponse = await fetch('/handle_login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        // Send the token and any useful user info received from backend
+                        body: JSON.stringify({
+                            jwt_token: authData.access_token,
+                            user_id: authData.user_id, // Ensure your backend /auth/login returns these
+                            user_email: email,
+                            user_name: authData.name, // If backend provides user name on login
+                            user_role: authData.role // If backend provides user role on login
+                        })
+                    });
+
+                    if (handleLoginResponse.ok) {
+                        // 3. Frontend Flask app now has JWT in session, redirect will work
+                        console.log('Frontend login handler successful. Redirecting to /dashboard.');
+                        window.location.href = '/dashboard';
+                    } else {
+                        const handleLoginData = await handleLoginResponse.json();
+                        console.error('Frontend login handler failed:', handleLoginResponse.status, handleLoginData);
+                        showMessageBox(handleLoginData.message || 'Frontend login handler failed.', 'danger');
+                    }
+
+                } else if (isRegisterMode) {
+                    console.log('Registration successful, switching to login mode.');
+                    isRegisterMode = false;
+                    emailInput.value = '';
+                    passwordInput.value = '';
+                    nameInput.value = '';
+                    authForm.classList.remove('was-validated');
+                    updateUI();
+                }
+            } else {
+                console.error('Backend Auth API responded with non-2xx status:', authResponse.status, authData);
+                showMessageBox(authData.message || 'Authentication failed. Please check your credentials.', 'danger');
+            }
+        } catch (error) {
+            console.error('Caught an unexpected error during auth process:', error);
+            showMessageBox('An unexpected error occurred. Please try again.', 'danger');
+        } finally {
+            submitButton.disabled = false;
+            updateUI();
+        }
+    });
+
+    updateUI();
+</script>
+{% endblock %}

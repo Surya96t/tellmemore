@@ -1,0 +1,180 @@
+<!-- TellMeMore_Frontend/frontend_app/templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TellMeMore Frontend - {% block title %}{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Bootstrap Icons (Optional, but useful) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Keep Inter font, but rely on Bootstrap for layout */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(to bottom right, #e0f2fe, #e1bee7); /* Light blue to light purple */
+        }
+        .profile-circle {
+            width: 32px;
+            height: 32px;
+            background-color: #0d6efd;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0; /* Prevent shrinking in flex containers */
+        }
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1050; /* Above Bootstrap modals */
+        }
+        .message-box {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            width: 100%;
+        }
+        .chat-history-scrollable {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding: 1rem; /* Adjust padding as needed */
+        }
+        /* Custom scrollbar */
+        .chat-history-scrollable::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-history-scrollable::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .chat-history-scrollable::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .chat-history-scrollable::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Styles for the two prompt boxes in chat area */
+        .prompt-box {
+            min-height: 150px; /* Adjust as needed */
+            max-height: 100%;
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-root" class="d-flex flex-column flex-grow-1">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Message Box Placeholder -->
+    <div id="message-box-container"></div>
+
+    <!-- Bootstrap JS (bundle includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        // Global utility function for Message Box
+        function showMessageBox(message, type) {
+            const container = document.getElementById('message-box-container');
+            let alertClass = '';
+            let iconClass = '';
+            let title = '';
+
+            if (type === 'success') {
+                alertClass = 'alert-success';
+                iconClass = 'bi-check-circle-fill';
+                title = 'Success!';
+            } else {
+                alertClass = 'alert-danger';
+                iconClass = 'bi-exclamation-triangle-fill';
+                title = 'Error!';
+            }
+
+            container.innerHTML = `
+                <div class="message-box-overlay">
+                    <div class="message-box text-center">
+                        <div class="alert ${alertClass} d-flex align-items-center mb-4" role="alert">
+                            <i class="bi ${iconClass} flex-shrink-0 me-2" style="font-size: 1.25rem;"></i>
+                            <div>
+                                <h4 class="alert-heading mb-1">${title}</h4>
+                                <p class="mb-0">${message}</p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="message-box-close">Close</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('message-box-close').onclick = () => {
+                container.innerHTML = '';
+            };
+        }
+
+        // Global API_BASE_URL from Flask context, ensure no trailing slash
+        const API_BASE_URL = "{{ api_base_url }}".replace(/\/+$/, ''); // Remove trailing slashes
+
+        // Global Utility for API fetch with JWT
+        async function fetchAPI(endpoint, options = {}) {
+            const token = localStorage.getItem('jwt_token'); // Get token from local storage
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            // Ensure endpoint always starts with a single slash
+            const fullUrl = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+
+            try {
+                const response = await fetch(fullUrl, {
+                    ...options,
+                    headers: headers
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    showMessageBox('Your session has expired or is invalid. Please log in again.', 'danger');
+                    localStorage.removeItem('jwt_token');
+                    window.location.href = '/login'; // Redirect to login page
+                    return null; // Indicate failure
+                }
+
+                // If response is a redirect (3xx), it might be a problem with the API route definition itself.
+                // fetch() generally follows redirects, but a 308 for OPTIONS preflight can be problematic for CORS.
+                // Log it to help diagnose.
+                if (response.status >= 300 && response.status < 400) {
+                    console.warn(`API Redirect detected for ${fullUrl}. Status: ${response.status}. Location: ${response.headers.get('Location')}`);
+                    // Depending on the redirect, you might need to handle it or re-route.
+                    // For 308 on OPTIONS, it usually implies a trailing slash mismatch on the backend route.
+                    // The .replace(/\/+$/, '') on API_BASE_URL should help.
+                }
+
+
+                return response;
+            } catch (error) {
+                showMessageBox('Network error. Please check your connection and try again.', 'danger');
+                console.error('Network fetch error for URL:', fullUrl, error);
+                return null;
+            }
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
