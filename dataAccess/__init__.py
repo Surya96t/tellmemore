@@ -21,7 +21,7 @@ def create_app(config_class):
     load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
     app.config.update(
-        SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URL', app.config['SQLALCHEMY_DATABASE_URI']),
+        SQLALCHEMY_DATABASE_URI=os.getenv('postgresql+psycopg2://tmmdbuser:H0odBla$#2025@172.25.36.226:5432/tmmdb', app.config['SQLALCHEMY_DATABASE_URI']),
         MONGO_URI=os.getenv('MONGO_URI', app.config['MONGO_URI']),
         SECRET_KEY=os.getenv('SECRET_KEY', app.config['SECRET_KEY']),
         JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY', app.config['JWT_SECRET_KEY'])
@@ -33,16 +33,25 @@ def create_app(config_class):
     cors.init_app(app)
     mongo.init_app(app)
 
+    # --- NEW ADDITION FOR TABLE CREATION ---
+    with app.app_context():
+        # Import models here to ensure they are registered with SQLAlchemy's metadata
+        from dataAccess.models.postgres_models import User, Quota, ChatSession
+        # db.create_all() will create tables only if they do not already exist.
+        # It won't modify existing tables or data.
+        db.create_all()
+        app.logger.info("PostgreSQL tables checked/created.")
+    # --- END NEW ADDITION ---
+
     # Register Blueprints
     from .api.auth import auth_bp
     from .api.users import users_bp
-    # UPDATED: Import and register chat_sessions_bp
     from .api.chat_sessions import chat_sessions_bp
     from .api.prompts import prompts_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
-    app.register_blueprint(chat_sessions_bp) # UPDATED
+    app.register_blueprint(chat_sessions_bp)
     app.register_blueprint(prompts_bp)
 
     @app.errorhandler(404)

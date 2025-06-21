@@ -7,3 +7,4 @@ Flask-MongoEngine # Or pymongo
 psycopg2-binary   # PostgreSQL driver
 Werkzeug          # For password hashing (often installed with Flask)
 python-dotenv     # For loading .env file locally
+requests          # If frontend Flask app needs to make server-side requests

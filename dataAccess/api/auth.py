@@ -16,6 +16,7 @@ def register():
     name = data.get('name')
     email = data.get('email')
     password = data.get('password')
+    role = data.get('role')
 
     if not all([name, email, password]):
         return jsonify({'message': 'Missing name, email, or password'}), 400
@@ -24,7 +25,7 @@ def register():
         return jsonify({'message': 'User with this email already exists'}), 409
 
     try:
-        new_user = UserService.create_user(name, email, password)
+        new_user = UserService.create_user(name, email, password, role)
         # Log the registration event
         AuditService.log_event(
             event_type='user_registered',
