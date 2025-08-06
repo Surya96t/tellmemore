@@ -6,7 +6,12 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable, RunnableParallel, RunnablePassthrough
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from typing import List, Dict, Any 
+from dotenv import load_dotenv
+import os
+import google.generativeai as genai
 
+
+load_dotenv()
 
 # Common components for simple chains
 # output_parser = StrOutputParser()
@@ -38,7 +43,7 @@ def get_openai_llm_chain(model_name: str) -> Runnable:
                   "chat_history" (List[BaseMessage]) keys.
                   "chat_history" can be an empty list for the first turn.
     """
-    llm = ChatOpenAI(model=model_name)
+    llm = ChatOpenAI(model=model_name, api_key=os.getenv("OPENAI_API_KEY"))
     chain = chat_llm_prompt | llm | output_structure_chain
     return chain
 
@@ -55,7 +60,7 @@ def get_google_llm_chain(model_name: str) -> Runnable:
                   "chat_history" (List[BaseMessage]) keys.
                   "chat_history" can be an empty list for the first turn.
     """
-    llm = ChatGoogleGenerativeAI(model=model_name)
+    llm = ChatGoogleGenerativeAI(model=model_name, google_api_key=os.getenv("GOOGLE_API_KEY"))
     chain = chat_llm_prompt | llm | output_structure_chain
     return chain
 
@@ -72,7 +77,7 @@ def get_groq_llm_chain(model_name: str) -> Runnable:
                   "chat_history" (List[BaseMessage]) keys.
                   "chat_history" can be an empty list for the first turn.
     """
-    llm = ChatGroq(model=model_name) # Groq uses model_name parameter
+    llm = ChatGroq(model=model_name, groq_api_key=os.getenv("GROQ_API_KEY")) # Groq uses model_name parameter
     chain = chat_llm_prompt | llm | output_structure_chain
     return chain
 
@@ -124,71 +129,71 @@ def get_groq_llm_chain(model_name: str) -> Runnable:
 #             print(f"Error with OpenAI: {e}")
 #     print("-" * 30)
 
-    # # --- Example Conversation with Google ---
-    # print(f"\n--- Testing Chat with Google ({google_model_str}) ---")
-    # chat_history_google: List[Any] = []
+#     # --- Example Conversation with Google ---
+#     print(f"\n--- Testing Chat with Google ({google_model_str}) ---")
+#     chat_history_google: List[Any] = []
 
-    # # Turn 1
-    # user_input_g1 = "What is the capital of Germany?"
-    # print(f"User: {user_input_g1}")
-    # try:
-    #     response_g1 = google_chain.invoke({
-    #         "input": user_input_g1,
-    #         "chat_history": chat_history_google
-    #     })
-    #     print(f"Google: {response_g1}")
-    #     chat_history_google.append(HumanMessage(content=user_input_g1))
-    #     chat_history_google.append(AIMessage(content=response_g1))
-    # except Exception as e:
-    #     print(f"Error with Google: {e}")
+#     # Turn 1
+#     user_input_g1 = "What is the capital of Germany?"
+#     print(f"User: {user_input_g1}")
+#     try:
+#         response_g1 = google_chain.invoke({
+#             "input": user_input_g1,
+#             "chat_history": chat_history_google
+#         })
+#         print(f"Google: {response_g1}")
+#         chat_history_google.append(HumanMessage(content=user_input_g1))
+#         chat_history_google.append(AIMessage(content=response_g1))
+#     except Exception as e:
+#         print(f"Error with Google: {e}")
 
-    # # Turn 2 (with history)
-    # user_input_g2 = "And what is its primary spoken language?"
-    # print(f"\nUser: {user_input_g2}")
-    # if chat_history_google:
-    #     try:
-    #         response_g2 = google_chain.invoke({
-    #             "input": user_input_g2,
-    #             "chat_history": chat_history_google
-    #         })
-    #         print(f"Google: {response_g2}")
-    #         chat_history_google.append(HumanMessage(content=user_input_g2))
-    #         chat_history_google.append(AIMessage(content=response_g2))
-    #     except Exception as e:
-    #         print(f"Error with Google: {e}")
-    # print("-" * 30)
+#     # Turn 2 (with history)
+#     user_input_g2 = "And what is its primary spoken language?"
+#     print(f"\nUser: {user_input_g2}")
+#     if chat_history_google:
+#         try:
+#             response_g2 = google_chain.invoke({
+#                 "input": user_input_g2,
+#                 "chat_history": chat_history_google
+#             })
+#             print(f"Google: {response_g2}")
+#             chat_history_google.append(HumanMessage(content=user_input_g2))
+#             chat_history_google.append(AIMessage(content=response_g2))
+#         except Exception as e:
+#             print(f"Error with Google: {e}")
+#     print("-" * 30)
 
-    # # --- Example Conversation with Groq ---
-    # # Note: LLaMA models might not be as strong at remembering names or conversational context
-    # # without very specific prompting or fine-tuning, but the mechanism is the same.
-    # print(f"\n--- Testing Chat with Groq ({groq_model_str}) ---")
-    # chat_history_groq: List[Any] = []
+#     # --- Example Conversation with Groq ---
+#     # Note: LLaMA models might not be as strong at remembering names or conversational context
+#     # without very specific prompting or fine-tuning, but the mechanism is the same.
+#     print(f"\n--- Testing Chat with Groq ({groq_model_str}) ---")
+#     chat_history_groq: List[Any] = []
 
-    # # Turn 1
-    # user_input_gr1 = "I like the color blue. What are two common fruits that are blue?"
-    # print(f"User: {user_input_gr1}")
-    # try:
-    #     response_gr1 = groq_chain.invoke({
-    #         "input": user_input_gr1,
-    #         "chat_history": chat_history_groq
-    #     })
-    #     print(f"Groq: {response_gr1}")
-    #     chat_history_groq.append(HumanMessage(content=user_input_gr1))
-    #     chat_history_groq.append(AIMessage(content=response_gr1))
-    # except Exception as e:
-    #     print(f"Error with Groq: {e}")
+#     # Turn 1
+#     user_input_gr1 = "I like the color blue. What are two common fruits that are blue?"
+#     print(f"User: {user_input_gr1}")
+#     try:
+#         response_gr1 = groq_chain.invoke({
+#             "input": user_input_gr1,
+#             "chat_history": chat_history_groq
+#         })
+#         print(f"Groq: {response_gr1}")
+#         chat_history_groq.append(HumanMessage(content=user_input_gr1))
+#         chat_history_groq.append(AIMessage(content=response_gr1))
+#     except Exception as e:
+#         print(f"Error with Groq: {e}")
 
-    # # Turn 2 (with history)
-    # user_input_gr2 = "What was the color I said I liked?"
-    # print(f"\nUser: {user_input_gr2}")
-    # if chat_history_groq:
-    #     try:
-    #         response_gr2 = groq_chain.invoke({
-    #             "input": user_input_gr2,
-    #             "chat_history": chat_history_groq
-    #         })
-    #         print(f"Groq: {response_gr2}")
-    #         # Not adding to history here for brevity in example
-    #     except Exception as e:
-    #         print(f"Error with Groq: {e}")
-    # print("-" * 30)
+#     # Turn 2 (with history)
+#     user_input_gr2 = "What was the color I said I liked?"
+#     print(f"\nUser: {user_input_gr2}")
+#     if chat_history_groq:
+#         try:
+#             response_gr2 = groq_chain.invoke({
+#                 "input": user_input_gr2,
+#                 "chat_history": chat_history_groq
+#             })
+#             print(f"Groq: {response_gr2}")
+#             # Not adding to history here for brevity in example
+#         except Exception as e:
+#             print(f"Error with Groq: {e}")
+#     print("-" * 30)
