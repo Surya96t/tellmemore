@@ -7,10 +7,5 @@ pydantic==2.7.4
 python-dotenv==1.0.0
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0
-<<<<<<< Updated upstream
-pydantic[email]
-python-multipart
-=======
 python-multipart==0.0.20
 pydantic[email]
->>>>>>> Stashed changes
