@@ -75,6 +75,10 @@
         #right-sidebar .toggle-btn {
             text-align: left;
         }
+
+        .justified-text {
+            text-align: justify;
+        }
     </style>
 
     <div class="dashboard-container">
@@ -108,9 +112,6 @@
                     <ul id="sessions-30-days" class="list-unstyled mb-3">
                         </ul>
 
-                    <h6 class="text-secondary mt-3 mb-2 fw-semibold">April</h6>
-                    <ul id="sessions-april" class="list-unstyled mb-3">
-                        </ul>
                     <p class="text-center text-muted small mt-3 d-none" id="loading-sessions-sidebar">Loading sessions...</p>
                     <p class="text-center text-muted small mt-3 d-none" id="no-sessions-sidebar">No sessions yet. Create one!</p>
                 </div>
@@ -121,41 +122,29 @@
                     <div class="card-header bg-white border-bottom d-flex align-items-center py-3" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
                         <div class="col me-2">
                             <select class="form-select" id="model-select-chatgpt">
-                                <option value="gpt-4o" selected>GPT-4o</option>
-                                <option value="gpt-4o-mini">GPT-4o Mini</option>
-                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                                <option value="gemini-1.5-pro-latest" selected>Gemini 1.5 Pro Latest</option>
-                                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash Latest</option>
-                                <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
-                                <option value="llama3-8b-8192">Grok llama3-8b</option>
-                                <option value="llama3-70b-8192">Grok llama3-70b</option>
-                            </select>
+                                </select>
                         </div>
                         <div class="col">
                             <select class="form-select" id="model-select-gemini">
-                                <option value="gemini-1.5-pro-latest" selected>Gemini 1.5 Pro Latest</option>
-                                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash Latest</option>
-                                <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
-                                <option value="gpt-4o" selected>GPT-4o</option>
-                                <option value="gpt-4o-mini">GPT-4o Mini</option>
-                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                                <option value="llama3-8b-8192">Grok llama3-8b</option>
-                                <option value="llama3-70b-8192">Grok llama3-70b</option>
-                            </select>
+                                </select>
                         </div>
                     </div>
 
                     <div class="card-body p-3 d-flex flex-grow-1 flex-column flex-md-row gap-3 overflow-hidden">
-                        <div class="prompt-box border rounded-3 flex-grow-1 d-flex flex-column bg-light">
-                            <h6 class="card-title text-center py-2 border-bottom text-primary fw-bold">ChatGPT Conversation</h6>
-                            <div id="chat-history-chatgpt" class="p-3 overflow-auto flex-grow-1">
-                                <p class="text-center text-muted">Start typing your first message to begin a conversation with ChatGPT.</p>
+                        <div class="col me-2">
+                            <div class="prompt-box rounded-3 flex-grow-1 d-flex flex-column bg-light">
+                                <h6 class="card-title text-center py-2 border-bottom text-primary fw-bold">ChatGPT Conversation</h6>
+                                <div id="chat-history-chatgpt" class="p-3 overflow-auto flex-grow-1">
+                                    <p class="text-center text-muted">Start typing your first message to begin a conversation with ChatGPT.</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="prompt-box border rounded-3 flex-grow-1 d-flex flex-column bg-light">
-                            <h6 class="card-title text-center py-2 border-bottom text-success fw-bold">Gemini Conversation</h6>
-                            <div id="chat-history-gemini" class="p-3 overflow-auto flex-grow-1">
-                                <p class="text-center text-muted">Start typing your first message to begin a conversation with Gemini.</p>
+                        <div class="col">
+                            <div class="prompt-box rounded-3 flex-grow-1 d-flex flex-column bg-light">
+                                <h6 class="card-title text-center py-2 border-bottom text-success fw-bold">Gemini Conversation</h6>
+                                <div id="chat-history-gemini" class="p-3 overflow-auto flex-grow-1">
+                                    <p class="text-center text-muted">Start typing your first message to begin a conversation with Gemini.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -217,7 +206,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="form-check flex-grow-1">
                                     <input class="form-check-input" type="checkbox" value="userPrompt2" id="userPromptUser2">
-                                    <label class="form-check-label text-body" for="userPromptUser2">prompt 2</label>
+                                    <label class="form-check-label text-body" for="userPrompt2">prompt 2</label>
                                 </div>
                                 <a href="#" class="btn btn-sm btn-outline-secondary ms-2" style="border-radius: 0.5rem;">Edit</a>
                             </div>
@@ -240,6 +229,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked@4.0.10/marked.min.js"></script>
 <script>
     // --- Global State ---
     let authToken = localStorage.getItem('jwt_token') || null;
@@ -259,7 +249,7 @@
     const newSessionButton = document.getElementById('new-session-button');
     const sessions7DaysList = document.getElementById('sessions-7-days');
     const sessions30DaysList = document.getElementById('sessions-30-days');
-    const sessionsAprilList = document.getElementById('sessions-april');
+    // Removed: const sessionsAprilList = document.getElementById('sessions-april');
     const loadingSessionsSidebar = document.getElementById('loading-sessions-sidebar');
     const noSessionsSidebar = document.getElementById('no-sessions-sidebar');
     
@@ -324,9 +314,22 @@
     // Helper to append messages to a specific chat history box (DOM)
     function appendMessageToChatBox(chatBoxElement, sender, message, type) {
         const messageDiv = document.createElement('div');
-        messageDiv.className = `mb-2 p-2 rounded-3 ${sender === 'You' ? 'bg-primary text-white ms-auto' : (type === 'chatgpt' ? 'bg-info text-dark me-auto' : 'bg-success text-white me-auto')}`;
+        messageDiv.className = `mb-2 p-2 rounded-3 ${sender === 'You' ? 'ms-auto' : 'me-auto'}`;
         messageDiv.style.maxWidth = '85%';
-        messageDiv.innerHTML = `<small class="fw-semibold">${sender}:</small><p class="mb-0">${escapeHTML(message)}</p>`;
+        
+        // Use marked.js to parse the markdown message into HTML
+        const formattedMessage = marked.parse(message);
+        
+        // Use a div for the content to ensure markdown is rendered correctly
+        const contentDiv = document.createElement('div');
+        contentDiv.innerHTML = formattedMessage;
+
+        // Apply styling to the elements within the markdown output
+        const messageContainer = document.createElement('div');
+        messageContainer.innerHTML = `<small class="fw-semibold justified-text">${sender}:</small>`;
+        messageContainer.appendChild(contentDiv);
+
+        messageDiv.appendChild(messageContainer);
         chatBoxElement.appendChild(messageDiv);
         chatBoxElement.scrollTop = chatBoxElement.scrollHeight; // Scroll to bottom
     }
@@ -360,7 +363,6 @@
         noSessionsSidebar.classList.add('d-none'); // Use d-none for Bootstrap
         sessions7DaysList.innerHTML = '';
         sessions30DaysList.innerHTML = '';
-        sessionsAprilList.innerHTML = '';
         
         try {
             const response = await fetchAPI(`/chat_sessions/user/${currentUser.user_id}`); // Use backend API
@@ -371,7 +373,6 @@
                 const now = new Date();
                 const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 7);
                 const thirtyDaysAgo = new Date(now); thirtyDaysAgo.setDate(now.getDate() - 30);
-                const currentMonth = now.getMonth();
 
                 sessions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort by newest first
 
@@ -404,14 +405,11 @@
                         sessions7DaysList.appendChild(sessionItem);
                     } else if (createdAt >= thirtyDaysAgo) {
                         sessions30DaysList.appendChild(sessionItem);
-                    } else if (createdAt.getMonth() === currentMonth -1 || createdAt.getMonth() === 3) { // Check for April (month 3) or previous month generally
-                        sessionsAprilList.appendChild(sessionItem); // Assuming "April" is representative of older sessions
                     }
                 });
 
                 if (sessions7DaysList.children.length === 0 &&
-                    sessions30DaysList.children.length === 0 &&
-                    sessionsAprilList.children.length === 0) {
+                    sessions30DaysList.children.length === 0) {
                     noSessionsSidebar.classList.remove('d-none');
                 } else {
                     noSessionsSidebar.classList.add('d-none');
@@ -721,7 +719,7 @@
     // Function to update the active session highlight in the sidebar
     function updateSidebarActiveSession() {
         // Remove active class from all session links
-        document.querySelectorAll('#sessions-7-days a, #sessions-30-days a, #sessions-april a').forEach(link => {
+        document.querySelectorAll('#sessions-7-days a, #sessions-30-days a').forEach(link => {
             link.classList.remove('active');
             link.removeAttribute('aria-current');
         });
@@ -745,11 +743,63 @@
     // --- Initial Load Logic ---
     // NEW: Variable to hold the LLM API Base URL
     const LLM_API_BASE_URL = "{{ llm_api_base_url }}".replace(/\/+$/, ''); // Remove trailing slashes
+    
+    // NEW SCRIPT to fetch and populate model dropdowns
+    async function populateModelDropdownsFromText() {
+        try {
+            const response = await fetch('/static/models.txt');
+            if (!response.ok) {
+                throw new Error('Failed to load models list from file.');
+            }
+            const data = await response.text();
+            const models = data.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+            const chatgptDropdown = document.getElementById('model-select-chatgpt');
+            const geminiDropdown = document.getElementById('model-select-gemini');
+
+            // Clear existing options
+            chatgptDropdown.innerHTML = '';
+            geminiDropdown.innerHTML = '';
+
+            models.forEach(modelLine => {
+                const parts = modelLine.split(':');
+                if (parts.length === 2) {
+                    const value = parts[0].trim();
+                    const text = parts[1].trim();
+
+                    // Create and append options for ChatGPT dropdown
+                    const chatgptOption = document.createElement('option');
+                    chatgptOption.value = value;
+                    chatgptOption.textContent = text;
+                    chatgptDropdown.appendChild(chatgptOption);
+
+                    // Create and append options for Gemini dropdown
+                    const geminiOption = document.createElement('option');
+                    geminiOption.value = value;
+                    geminiOption.textContent = text;
+                    geminiDropdown.appendChild(geminiOption);
+                }
+            });
+
+            // Set default selected values after populating
+            chatgptDropdown.value = 'gpt-4o';
+            geminiDropdown.value = 'gemini-1.5-pro-latest';
+            
+            console.log('Model dropdowns populated successfully from text file.');
+        } catch (error) {
+            console.error('Error populating model dropdowns:', error);
+            // You might want to fall back to hardcoded values or show an error to the user here
+        }
+    }
 
     document.addEventListener('DOMContentLoaded', async () => {
         console.log('Dashboard using BACKEND_API_URL:', BACKEND_API_URL);
         console.log('Dashboard using LLM_API_BASE_URL:', LLM_API_BASE_URL); // Log the new LLM URL
         console.log("DEBUG: DOMContentLoaded: Page loaded.");
+        
+        // Call the new function to populate dropdowns from the text file
+        await populateModelDropdownsFromText();
+
         authToken = localStorage.getItem('jwt_token');
         if (!authToken) {
             console.log("DEBUG: DOMContentLoaded: No auth token found. Redirecting to /login.");
