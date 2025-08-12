@@ -3,155 +3,237 @@
 {% block title %}Dashboard & Chat{% endblock %}
 
 {% block content %}
-    <!-- Header -->
-    <nav class="navbar navbar-light bg-white border-bottom px-3 py-3"> {# Adjusted padding #}
-        <span class="navbar-brand mb-0 h1 fw-bold">
-            <img src="/static/logo.jpg" alt="TellMeMore Logo" style="height: 30px; margin-right: 10px; vertical-align: middle;">
-            TellMeMore
-        </span> {# Added fw-bold for stronger text #}
-        <div class="d-flex align-items-center">
-            <i class="bi bi-three-dots-vertical me-3 text-secondary"></i>
-            <div class="profile-circle me-2" id="header-profile-circle">U</div>
-            <a href="#" id="header-logout-link" class="text-danger fw-semibold text-decoration-none">Logout</a> {# Changed href to # #}
-        </div>
-    </nav>
+    <style>
+        /* Main layout container using Flexbox */
+        body, html {
+            height: 100%;
+        }
 
-    <!-- Main Content -->
-    <div class="container-fluid flex-grow-1 d-flex flex-column flex-md-row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 bg-white p-3 border-end d-flex flex-column shadow-sm"> {# Added shadow-sm #}
-            <button id="new-session-button" class="btn btn-primary w-100 mb-3 d-flex align-items-center justify-content-center py-2 fw-semibold" style="border-radius: 0.5rem;">
-                <i class="bi bi-chat-left-text me-2"></i> New Session
-            </button>
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
 
-            <!-- Previous 7 Days Section -->
-            <h6 class="text-secondary mt-3 mb-2 fw-semibold">Previous 7 Days</h6> {# Changed text-muted to text-secondary #}
-            <ul id="sessions-7-days" class="list-unstyled mb-3">
-                <!-- Dynamically populated sessions will go here -->
-            </ul>
+        .main-content-row {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
 
-            <!-- Previous 30 Days Section -->
-            <h6 class="text-secondary mt-3 mb-2 fw-semibold">Previous 30 Days</h6> {# Changed text-muted to text-secondary #}
-            <ul id="sessions-30-days" class="list-unstyled mb-3">
-                <!-- Dynamically populated sessions will go here -->
-            </ul>
+        /* Custom styles for collapsible sidebars */
+        .sidebar {
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            overflow-x: hidden;
+            background-color: #fff;
+            border-right: 1px solid #dee2e6; /* Add borders back for separation */
+            border-left: 1px solid #dee2e6;
+        }
 
-            <!-- April Section -->
-            <h6 class="text-secondary mt-3 mb-2 fw-semibold">April</h6> {# Changed text-muted to text-secondary #}
-            <ul id="sessions-april" class="list-unstyled mb-3">
-                <!-- Dynamically populated sessions will go here -->
-            </ul>
-            <p class="text-center text-muted small mt-3 d-none" id="loading-sessions-sidebar">Loading sessions...</p>
-            <p class="text-center text-muted small mt-3 d-none" id="no-sessions-sidebar">No sessions yet. Create one!</p>
-        </div>
+        #left-sidebar {
+            width: 250px;
+        }
 
-        <!-- Chat Area - Always visible -->
-        <div class="col-md-9 col-lg-7 p-3 d-flex flex-column chat-area flex-grow-1">
-            <div id="chat-area-container" class="card shadow-lg flex-grow-1 d-flex flex-column" style="border-radius: 1rem;">
-                <div class="card-header bg-white border-bottom d-flex align-items-center py-3" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
-                    <!-- Model Selectors from Image -->
-                    <div class="col me-2">
-                        <select class="form-select" id="model-select-chatgpt">
-                            <option value="gpt-4o" selected>GPT-4o</option>
-                            <option value="gpt-4o-mini">GPT-4o Mini</option>
-                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <select class="form-select" id="model-select-gemini">
-                            <option value="gemini-1.5-pro-latest" selected>Gemini 1.5 Pro Latest</option>
-                            <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash Latest</option>
-                            <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
-                        </select>
-                    </div>
-                </div>
+        #right-sidebar {
+            width: 300px;
+        }
 
-                <div class="card-body p-3 d-flex flex-grow-1 flex-column flex-md-row gap-3 overflow-hidden">
-                    <!-- Left Chat Box (ChatGPT Conversation) -->
-                    <div class="prompt-box border rounded-3 flex-grow-1 d-flex flex-column bg-light">
-                        <h6 class="card-title text-center py-2 border-bottom text-primary fw-bold">ChatGPT Conversation</h6>
-                        <div id="chat-history-chatgpt" class="p-3 overflow-auto flex-grow-1">
-                            <p class="text-center text-muted">Start typing your first message to begin a conversation with ChatGPT.</p>
-                        </div>
-                    </div>
-                    <!-- Right Chat Box (Gemini Conversation) -->
-                    <div class="prompt-box border rounded-3 flex-grow-1 d-flex flex-column bg-light">
-                        <h6 class="card-title text-center py-2 border-bottom text-success fw-bold">Gemini Conversation</h6>
-                        <div id="chat-history-gemini" class="p-3 overflow-auto flex-grow-1">
-                            <p class="text-center text-muted">Start typing your first message to begin a conversation with Gemini.</p>
-                        </div>
-                    </div>
-                </div>
+        .sidebar.collapsed {
+            width: 60px !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
 
-                <div class="card-footer bg-white p-3 border-top" style="border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem;">
-                    <form id="send-prompt-form" class="d-flex gap-3">
-                        <input
-                            id="new-prompt-text"
-                            type="text"
-                            placeholder="Type your message..."
-                            class="form-control form-control-lg flex-grow-1"
-                            required
-                        />
-                        <button
-                            id="send-prompt-button"
-                            type="submit"
-                            class="btn btn-primary btn-lg fw-bold"
-                        >
-                            <i class="bi bi-send-fill"></i>
-                        </button>
-                    </form>
-                </div>
+        .sidebar.collapsed .sidebar-content {
+            display: none;
+        }
+        
+        /* The header and main chat area */
+        #main-chat-area {
+            flex-grow: 1;
+            padding: 3rem; /* Adjust padding as needed */
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .toggle-btn {
+            display: block;
+            width: 100%;
+            text-align: right;
+            border: none;
+            background: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        #left-sidebar .toggle-btn {
+            text-align: right;
+        }
+
+        #right-sidebar .toggle-btn {
+            text-align: left;
+        }
+    </style>
+
+    <div class="dashboard-container">
+        <nav class="navbar navbar-light bg-white border-bottom px-3 py-3 shadow-sm">
+            <span class="navbar-brand mb-0 h1 fw-bold">
+                <img src="/static/logo.jpg" alt="TellMeMore Logo" style="height: 30px; margin-right: 10px; vertical-align: middle;">
+                TellMeMore
+            </span>
+            <div class="d-flex align-items-center">
+                <i class="bi bi-three-dots-vertical me-3 text-secondary"></i>
+                <div class="profile-circle me-2" id="header-profile-circle">U</div>
+                <a href="#" id="header-logout-link" class="text-danger fw-semibold text-decoration-none">Logout</a>
             </div>
-        </div>
+        </nav>
 
-        <!-- Prompt Controls - Always visible (right sidebar) -->
-        <div class="col-md-12 col-lg-3 p-3 border-start d-none d-lg-block">
-            <div class="card border-0 p-3 mb-4 rounded-3 bg-white shadow-sm"> {# Changed from div.border to card.border-0 #}
-                <h6 class="fw-bold mb-3 text-primary">System Prompts</h6>
-                <div id="system-prompts-list" class="form-check-group">
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" value="prompt1" id="systemPrompt1">
-                        <label class="form-check-label text-body" for="systemPrompt1">prompt 1</label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" value="prompt2" id="systemPrompt2">
-                        <label class="form-check-label text-body" for="systemPrompt2">prompt 2</label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" value="prompt3" id="systemPrompt3">
-                        <label class="form-check-label text-body" for="systemPrompt3">prompt 3</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card border-0 p-3 rounded-3 bg-white shadow-sm"> {# Changed from div.border to card.border-0 #}
-                <h6 class="fw-bold mb-3 text-primary">User’s Prompts</h6>
-                <div id="user-prompts-list" class="form-check-group">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="form-check flex-grow-1">
-                            <input class="form-check-input" type="checkbox" value="userPrompt1" id="userPromptUser1">
-                            <label class="form-check-label text-body" for="userPromptUser1">prompt 1</label>
-                        </div>
-                        <a href="#" class="btn btn-sm btn-outline-secondary ms-2" style="border-radius: 0.5rem;">Edit</a>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="form-check flex-grow-1">
-                            <input class="form-check-input" type="checkbox" value="userPrompt2" id="userPromptUser2">
-                            <label class="form-check-label text-body" for="userPromptUser2">prompt 2</label>
-                        </div>
-                        <a href="#" class="btn btn-sm btn-outline-secondary ms-2" style="border-radius: 0.5rem;">Edit</a>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="form-check flex-grow-1">
-                            <input class="form-check-input" type="checkbox" value="userPrompt3" id="userPromptUser3">
-                            <label class="form-check-label text-body" for="userPrompt3">prompt 3</label>
-                        </div>
-                        <a href="#" class="btn btn-sm btn-outline-secondary ms-2" style="border-radius: 0.5rem;">Edit</a>
-                    </div>
-                </div>
-                <button class="btn btn-primary btn-sm mt-3 fw-semibold" style="border-radius: 0.5rem;">
-                    <i class="bi bi-plus me-1"></i> Add +
+        <div class="main-content-row">
+            <div id="left-sidebar" class="bg-white p-3 d-flex flex-column shadow-sm sidebar">
+                <button class="toggle-btn" onclick="toggleSidebar('left')">
+                    <i class="bi bi-list"></i>
                 </button>
+                <div class="sidebar-content">
+                    <button id="new-session-button" class="btn btn-primary w-100 mb-3 d-flex align-items-center justify-content-center py-2 fw-semibold" style="border-radius: 0.5rem;">
+                        <i class="bi bi-chat-left-text me-2"></i> New Session
+                    </button>
+
+                    <h6 class="text-secondary mt-3 mb-2 fw-semibold">Previous 7 Days</h6>
+                    <ul id="sessions-7-days" class="list-unstyled mb-3">
+                        </ul>
+
+                    <h6 class="text-secondary mt-3 mb-2 fw-semibold">Previous 30 Days</h6>
+                    <ul id="sessions-30-days" class="list-unstyled mb-3">
+                        </ul>
+
+                    <h6 class="text-secondary mt-3 mb-2 fw-semibold">April</h6>
+                    <ul id="sessions-april" class="list-unstyled mb-3">
+                        </ul>
+                    <p class="text-center text-muted small mt-3 d-none" id="loading-sessions-sidebar">Loading sessions...</p>
+                    <p class="text-center text-muted small mt-3 d-none" id="no-sessions-sidebar">No sessions yet. Create one!</p>
+                </div>
+            </div>
+
+            <div id="main-chat-area" class="d-flex flex-column flex-grow-1">
+                <div id="chat-area-container" class="card shadow-lg flex-grow-1 d-flex flex-column" style="border-radius: 1rem;">
+                    <div class="card-header bg-white border-bottom d-flex align-items-center py-3" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                        <div class="col me-2">
+                            <select class="form-select" id="model-select-chatgpt">
+                                <option value="gpt-4o" selected>GPT-4o</option>
+                                <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                <option value="gemini-1.5-pro-latest" selected>Gemini 1.5 Pro Latest</option>
+                                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash Latest</option>
+                                <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
+                                <option value="llama3-8b-8192">Grok llama3-8b</option>
+                                <option value="llama3-70b-8192">Grok llama3-70b</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select class="form-select" id="model-select-gemini">
+                                <option value="gemini-1.5-pro-latest" selected>Gemini 1.5 Pro Latest</option>
+                                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash Latest</option>
+                                <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
+                                <option value="gpt-4o" selected>GPT-4o</option>
+                                <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                <option value="llama3-8b-8192">Grok llama3-8b</option>
+                                <option value="llama3-70b-8192">Grok llama3-70b</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-3 d-flex flex-grow-1 flex-column flex-md-row gap-3 overflow-hidden">
+                        <div class="prompt-box border rounded-3 flex-grow-1 d-flex flex-column bg-light">
+                            <h6 class="card-title text-center py-2 border-bottom text-primary fw-bold">ChatGPT Conversation</h6>
+                            <div id="chat-history-chatgpt" class="p-3 overflow-auto flex-grow-1">
+                                <p class="text-center text-muted">Start typing your first message to begin a conversation with ChatGPT.</p>
+                            </div>
+                        </div>
+                        <div class="prompt-box border rounded-3 flex-grow-1 d-flex flex-column bg-light">
+                            <h6 class="card-title text-center py-2 border-bottom text-success fw-bold">Gemini Conversation</h6>
+                            <div id="chat-history-gemini" class="p-3 overflow-auto flex-grow-1">
+                                <p class="text-center text-muted">Start typing your first message to begin a conversation with Gemini.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white p-3 border-top" style="border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem;">
+                        <form id="send-prompt-form" class="d-flex gap-3">
+                            <input
+                                id="new-prompt-text"
+                                type="text"
+                                placeholder="Type your message..."
+                                class="form-control form-control-lg flex-grow-1"
+                                required
+                            />
+                            <button
+                                id="send-prompt-button"
+                                type="submit"
+                                class="btn btn-primary btn-lg fw-bold"
+                            >
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="right-sidebar" class="bg-white p-3 d-flex flex-column shadow-sm sidebar d-none d-lg-flex">
+                <button class="toggle-btn" onclick="toggleSidebar('right')">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="sidebar-content">
+                    <div class="card border-0 p-3 mb-4 rounded-3 bg-white shadow-sm">
+                        <h6 class="fw-bold mb-3 text-primary">System Prompts</h6>
+                        <div id="system-prompts-list" class="form-check-group">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" value="prompt1" id="systemPrompt1">
+                                <label class="form-check-label text-body" for="systemPrompt1">prompt 1</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" value="prompt2" id="systemPrompt2">
+                                <label class="form-check-label text-body" for="systemPrompt2">prompt 2</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" value="prompt3" id="systemPrompt3">
+                                <label class="form-check-label text-body" for="systemPrompt3">prompt 3</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 p-3 rounded-3 bg-white shadow-sm">
+                        <h6 class="fw-bold mb-3 text-primary">User’s Prompts</h6>
+                        <div id="user-prompts-list" class="form-check-group">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="form-check flex-grow-1">
+                                    <input class="form-check-input" type="checkbox" value="userPrompt1" id="userPromptUser1">
+                                    <label class="form-check-label text-body" for="userPromptUser1">prompt 1</label>
+                                </div>
+                                <a href="#" class="btn btn-sm btn-outline-secondary ms-2" style="border-radius: 0.5rem;">Edit</a>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="form-check flex-grow-1">
+                                    <input class="form-check-input" type="checkbox" value="userPrompt2" id="userPromptUser2">
+                                    <label class="form-check-label text-body" for="userPromptUser2">prompt 2</label>
+                                </div>
+                                <a href="#" class="btn btn-sm btn-outline-secondary ms-2" style="border-radius: 0.5rem;">Edit</a>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="form-check flex-grow-1">
+                                    <input class="form-check-input" type="checkbox" value="userPrompt3" id="userPromptUser3">
+                                    <label class="form-check-label text-body" for="userPrompt3">prompt 3</label>
+                                </div>
+                                <a href="#" class="btn btn-sm btn-outline-secondary ms-2" style="border-radius: 0.5rem;">Edit</a>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm mt-3 fw-semibold" style="border-radius: 0.5rem;">
+                            <i class="bi bi-plus me-1"></i> Add +
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -724,6 +806,39 @@
             element.classList.add('d-none');
         }
     }
+    
+    // Add the collapsible sidebar function
+    function toggleSidebar(side) {
+        const sidebar = document.getElementById(side === 'left' ? 'left-sidebar' : 'right-sidebar');
+        sidebar.classList.toggle('collapsed');
+    }
 
+    // New event listeners for auto-collapse
+    const leftSidebar = document.getElementById('left-sidebar');
+    const rightSidebar = document.getElementById('right-sidebar');
+
+    leftSidebar.addEventListener('mouseenter', () => {
+        if (leftSidebar.classList.contains('collapsed')) {
+            leftSidebar.classList.remove('collapsed');
+        }
+    });
+
+    leftSidebar.addEventListener('mouseleave', () => {
+        if (!leftSidebar.classList.contains('collapsed')) {
+            leftSidebar.classList.add('collapsed');
+        }
+    });
+
+    rightSidebar.addEventListener('mouseenter', () => {
+        if (rightSidebar.classList.contains('collapsed')) {
+            rightSidebar.classList.remove('collapsed');
+        }
+    });
+
+    rightSidebar.addEventListener('mouseleave', () => {
+        if (!rightSidebar.classList.contains('collapsed')) {
+            rightSidebar.classList.add('collapsed');
+        }
+    });
 </script>
 {% endblock %}
