@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     FRONTEND_PORT: int = 8080
     BACKEND_API_URL: str = "http://127.0.0.1:8000/api/v1"
     # New setting for the LLM API base URL
-    LLM_API_BASE_URL: str = "http://127.0.0.1:8001" # Default value as provided by you
+    LLM_API_BASE_URL: str = "http://127.0.0.1:8001" # Default value as provided by you    
 
 settings = Settings()
 
