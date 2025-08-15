@@ -1,0 +1,8 @@
+gpt-4o:GPT-4o
+gpt-4o-mini:GPT-4o Mini
+gpt-3.5-turbo:GPT-3.5 Turbo
+gemini-1.5-pro-latest:Gemini 1.5 Pro Latest
+gemini-1.5-flash-latest:Gemini 1.5 Flash Latest
+gemini-1.0-pro:Gemini 1.0 Pro
+llama3-8b-8192:Grok llama3-8b
+llama3-70b-8192:Grok llama3-70b
