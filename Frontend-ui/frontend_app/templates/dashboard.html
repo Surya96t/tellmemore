@@ -121,11 +121,11 @@
                 <div id="chat-area-container" class="card shadow-lg flex-grow-1 d-flex flex-column" style="border-radius: 1rem;">
                     <div class="card-header bg-white border-bottom d-flex align-items-center py-3" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
                         <div class="col me-2">
-                            <select class="form-select" id="model-select-chatgpt">
+                            <select class="form-select" id="model-select-left">
                                 </select>
                         </div>
                         <div class="col">
-                            <select class="form-select" id="model-select-gemini">
+                            <select class="form-select" id="model-select-right">
                                 </select>
                         </div>
                     </div>
@@ -133,17 +133,17 @@
                     <div class="card-body p-3 d-flex flex-grow-1 flex-column flex-md-row gap-3 overflow-hidden">
                         <div class="col me-2">
                             <div class="prompt-box rounded-3 flex-grow-1 d-flex flex-column bg-light">
-                                <h6 class="card-title text-center py-2 border-bottom text-primary fw-bold">ChatGPT Conversation</h6>
-                                <div id="chat-history-chatgpt" class="p-3 overflow-auto flex-grow-1">
-                                    <p class="text-center text-muted">Start typing your first message to begin a conversation with ChatGPT.</p>
+                                <h6 id="chat-title-left" class="card-title text-center py-2 border-bottom text-primary fw-bold">Conversation 1</h6>
+                                <div id="chat-history-left" class="p-3 overflow-auto flex-grow-1">
+                                    <p class="text-center text-muted">Start typing your first message to begin a conversation.</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col">
                             <div class="prompt-box rounded-3 flex-grow-1 d-flex flex-column bg-light">
-                                <h6 class="card-title text-center py-2 border-bottom text-success fw-bold">Gemini Conversation</h6>
-                                <div id="chat-history-gemini" class="p-3 overflow-auto flex-grow-1">
-                                    <p class="text-center text-muted">Start typing your first message to begin a conversation with Gemini.</p>
+                                <h6 id="chat-title-right" class="card-title text-center py-2 border-bottom text-success fw-bold">Conversation 2</h6>
+                                <div id="chat-history-right" class="p-3 overflow-auto flex-grow-1">
+                                    <p class="text-center text-muted">Start typing your first message to begin a conversation.</p>
                                 </div>
                             </div>
                         </div>
@@ -239,8 +239,9 @@
     let isNewSessionActive = false; // Flag to indicate if we're in a new, unsaved session
 
     // Chat history for each model, to be sent with API calls
-    let chatHistoryOpenAI = []; // Stores messages in { role: "user/assistant", content: "..." } format
-    let chatHistoryGoogle = []; // Stores messages in { role: "user/assistant", content: "..." } format
+    let chatHistoryLeft = [];
+    let chatHistoryRight = [];
+    let allModels = []; // Stores all models from models.txt initially
 
     // --- DOM Elements ---
     const headerProfileCircle = document.getElementById('header-profile-circle');
@@ -249,18 +250,19 @@
     const newSessionButton = document.getElementById('new-session-button');
     const sessions7DaysList = document.getElementById('sessions-7-days');
     const sessions30DaysList = document.getElementById('sessions-30-days');
-    // Removed: const sessionsAprilList = document.getElementById('sessions-april');
     const loadingSessionsSidebar = document.getElementById('loading-sessions-sidebar');
     const noSessionsSidebar = document.getElementById('no-sessions-sidebar');
     
-    const chatHistoryChatGPT = document.getElementById('chat-history-chatgpt');
-    const chatHistoryGemini = document.getElementById('chat-history-gemini');
+    const chatTitleLeft = document.getElementById('chat-title-left');
+    const chatTitleRight = document.getElementById('chat-title-right');
+    const chatHistoryLeftEl = document.getElementById('chat-history-left');
+    const chatHistoryRightEl = document.getElementById('chat-history-right');
     const newPromptTextInput = document.getElementById('new-prompt-text');
     const sendPromptButton = document.getElementById('send-prompt-button');
     const sendPromptForm = document.getElementById('send-prompt-form');
 
-    const modelSelectChatGPT = document.getElementById('model-select-chatgpt');
-    const modelSelectGemini = document.getElementById('model-select-gemini');
+    const modelSelectLeft = document.getElementById('model-select-left');
+    const modelSelectRight = document.getElementById('model-select-right');
 
 
     // --- Helper Functions ---
@@ -271,15 +273,8 @@
         return div.innerHTML;
     }
 
-    // Generic fetch wrapper for API calls (already defined in base.html)
-    // IMPORTANT: This fetchAPI is for your *backend* API (users, sessions, prompts).
-    // For LLM API calls, we'll create a separate function or modify this one slightly.
-    // async function fetchAPI(endpoint, options = {}) { ... }
-    // function showMessageBox(message, type) { ... }
-
-    // NEW: LLM API fetch wrapper
     async function fetchLLMAPI(endpoint, options = {}) {
-        const token = getToken(); // Use the same JWT token for LLM API if it's secured
+        const token = getToken();
         const headers = {
             'Content-Type': 'application/json',
             ...options.headers
@@ -288,7 +283,6 @@
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        // Use the new LLM_API_BASE_URL
         const fullUrl = `${LLM_API_BASE_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
         try {
@@ -299,8 +293,8 @@
 
             if (response.status === 401 || response.status === 403) {
                 showMessageBox('Your session has expired or is invalid with the LLM API. Please log in again.', 'danger');
-                clearToken(); // Clear token and redirect to login
-                return null; // Indicate failure
+                clearToken();
+                return null;
             }
             return response;
         } catch (error) {
@@ -340,7 +334,7 @@
     async function fetchCurrentUserProfile() {
         console.log("DEBUG: fetchCurrentUserProfile: Attempting to fetch user profile...");
         try {
-            const response = await fetchAPI('/auth/protected'); // Use backend API for user profile
+            const response = await fetchAPI('/auth/protected');
             if (response && response.ok) {
                 currentUser = await response.json();
                 headerProfileCircle.textContent = (currentUser.name || 'U').charAt(0).toUpperCase();
@@ -360,12 +354,12 @@
     async function fetchChatSessionsForSidebar() {
         console.log("DEBUG: fetchChatSessionsForSidebar: Attempting to fetch chat sessions...");
         showLoadingSpinner(loadingSessionsSidebar, true);
-        noSessionsSidebar.classList.add('d-none'); // Use d-none for Bootstrap
+        noSessionsSidebar.classList.add('d-none');
         sessions7DaysList.innerHTML = '';
         sessions30DaysList.innerHTML = '';
         
         try {
-            const response = await fetchAPI(`/chat_sessions/user/${currentUser.user_id}`); // Use backend API
+            const response = await fetchAPI(`/chat_sessions/user/${currentUser.user_id}`);
             if (response && response.ok) {
                 const sessions = await response.json();
                 console.log("DEBUG: fetchChatSessionsForSidebar: Chat sessions fetched successfully:", sessions);
@@ -374,21 +368,19 @@
                 const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 7);
                 const thirtyDaysAgo = new Date(now); thirtyDaysAgo.setDate(now.getDate() - 30);
 
-                sessions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort by newest first
+                sessions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
                 sessions.forEach(session => {
                     const createdAt = new Date(session.created_at);
 
                     const sessionItem = document.createElement('li');
                     const sessionLink = document.createElement('a');
-                    sessionLink.href = "#"; // Prevent full page reload
+                    sessionLink.href = "#";
                     sessionLink.dataset.chatSessionId = session.session_id;
                     sessionLink.dataset.chatSessionTitle = session.title;
-                    // Use Bootstrap list-group-item classes for styling
                     sessionLink.className = "list-group-item list-group-item-action py-2 text-body d-flex justify-content-between align-items-center";
                     sessionLink.textContent = escapeHTML(session.title);
 
-                    // Add active class if current session
                     if (session.session_id === activeChatSessionId) {
                         sessionLink.classList.add('active');
                         sessionLink.setAttribute('aria-current', 'true');
@@ -437,110 +429,110 @@
     }
 
 
-    // Sets up the chat area for a new session or an empty state
     function initializeChatArea(sessionId, sessionTitle) {
         console.log("DEBUG: initializeChatArea: Initializing chat area. SessionId:", sessionId, "Title:", sessionTitle);
         activeChatSessionId = sessionId;
         activeChatSessionTitle = sessionTitle;
         newPromptTextInput.value = '';
         
-        // Clear both chat history boxes and reset in-memory history arrays
-        chatHistoryChatGPT.innerHTML = '';
-        chatHistoryGemini.innerHTML = '';
-        chatHistoryOpenAI = [];
-        chatHistoryGoogle = [];
-
-        if (sessionId) { // A session is active, load its full history
-            isNewSessionActive = false; // Not a new session
-            chatHistoryChatGPT.innerHTML = `<p class="text-muted text-center"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading history...</p>`;
-            chatHistoryGemini.innerHTML = `<p class="text-muted text-center"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading history...</p>`;
+        chatHistoryLeftEl.innerHTML = '';
+        chatHistoryRightEl.innerHTML = '';
+        chatHistoryLeft = [];
+        chatHistoryRight = [];
+        
+        if (sessionId) {
+            isNewSessionActive = false;
+            chatHistoryLeftEl.innerHTML = `<p class="text-muted text-center"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading history...</p>`;
+            chatHistoryRightEl.innerHTML = `<p class="text-muted text-center"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading history...</p>`;
             enableChatInput(true);
             newPromptTextInput.focus();
-            fetchAndDisplayChatHistory(sessionId); // Fetch and display full history
-        } else { // No session active (initial state or after "New Session" button click)
-            isNewSessionActive = true; // Mark as new session
-            chatHistoryChatGPT.innerHTML = `<p class="text-center text-muted">Start typing your first message to begin a conversation with ChatGPT.</p>`;
-            chatHistoryGemini.innerHTML = `<p class="text-center text-muted">Start typing your first message to begin a conversation with Gemini.</p>`;
-            enableChatInput(true); // Enable input for new session
+            fetchAndDisplayChatHistory(sessionId);
+        } else {
+            isNewSessionActive = true;
+            chatHistoryLeftEl.innerHTML = `<p class="text-center text-muted">Start typing your first message to begin a conversation.</p>`;
+            chatHistoryRightEl.innerHTML = `<p class="text-center text-muted">Start typing your first message to begin a conversation.</p>`;
+            enableChatInput(true);
             newPromptTextInput.focus();
-            // Clear URL param for new session state
             history.pushState(null, '', '/dashboard');
         }
-        updateSidebarActiveSession(); // Re-highlight sidebar correctly
+        updateSidebarActiveSession();
     }
 
-    // Fetches and displays the full chat history for a given session
     async function fetchAndDisplayChatHistory(sessionId) {
         console.log("DEBUG: fetchAndDisplayChatHistory: Attempting to fetch full history for session:", sessionId);
         if (!sessionId) return;
-        chatHistoryChatGPT.innerHTML = `<p class="text-center text-muted"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading history...</p>`;
-        chatHistoryGemini.innerHTML = `<p class="text-center text-muted"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading history...</p>`;
+        chatHistoryLeftEl.innerHTML = `<p class="text-center text-muted"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading history...</p>`;
+        chatHistoryRightEl.innerHTML = `<p class="text-center text-muted"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading history...</p>`;
 
         try {
-            const response = await fetchAPI(`/prompts/session/${sessionId}`); // Use backend API for prompts
+            const response = await fetchAPI(`/prompts/session/${sessionId}`);
             if (response && response.ok) {
                 const prompts = await response.json();
                 console.log("DEBUG: fetchAndDisplayChatHistory: Prompts fetched successfully:", prompts);
                 
-                chatHistoryChatGPT.innerHTML = ''; // Clear loading message
-                chatHistoryGemini.innerHTML = ''; // Clear loading message
-                chatHistoryOpenAI = []; // Reset history for new session load
-                chatHistoryGoogle = []; // Reset history for new session load
-
+                chatHistoryLeftEl.innerHTML = '';
+                chatHistoryRightEl.innerHTML = '';
+                chatHistoryLeft = [];
+                chatHistoryRight = [];
 
                 if (prompts.length > 0) {
                     prompts.forEach(prompt => {
-                        // Display user's prompt in both boxes
-                        appendMessageToChatBox(chatHistoryChatGPT, 'You', prompt.prompt_text, 'user');
-                        appendMessageToChatBox(chatHistoryGemini, 'You', prompt.prompt_text, 'user');
-
-                        // Add user's prompt to both history arrays
                         const userMessage = { role: "user", content: prompt.prompt_text };
-                        chatHistoryOpenAI.push(userMessage);
-                        chatHistoryGoogle.push(userMessage);
+                        chatHistoryLeft.push(userMessage);
+                        chatHistoryRight.push(userMessage);
 
-                        const chatGPTResponse = prompt.llm_responses[0] || "No ChatGPT response.";
-                        const geminiResponse = prompt.llm_responses[1] || "No Gemini response."; 
+                        const leftResponse = prompt.llm_responses[0] || "No response.";
+                        const rightResponse = prompt.llm_responses[1] || "No response.";
 
-                        // Add AI responses to their respective history arrays
-                        chatHistoryOpenAI.push({ role: "assistant", content: chatGPTResponse });
-                        chatHistoryGoogle.push({ role: "assistant", content: geminiResponse });
+                        chatHistoryLeft.push({ role: "assistant", content: leftResponse });
+                        chatHistoryRight.push({ role: "assistant", content: rightResponse });
 
-                        appendMessageToChatBox(chatHistoryChatGPT, 'ChatGPT', chatGPTResponse, 'chatgpt');
-                        appendMessageToChatBox(chatHistoryGemini, 'Gemini', geminiResponse, 'gemini');
+                        appendMessageToChatBox(chatHistoryLeftEl, 'You', prompt.prompt_text, 'user');
+                        appendMessageToChatBox(chatHistoryLeftEl, chatTitleLeft.textContent.replace(' Conversation', ''), leftResponse, 'assistant');
+
+                        appendMessageToChatBox(chatHistoryRightEl, 'You', prompt.prompt_text, 'user');
+                        appendMessageToChatBox(chatHistoryRightEl, chatTitleRight.textContent.replace(' Conversation', ''), rightResponse, 'assistant');
                     });
                 } else {
-                    chatHistoryChatGPT.innerHTML = `<p class="text-center text-muted">No conversation history for this session. Start typing!</p>`;
-                    chatHistoryGemini.innerHTML = `<p class="text-center text-muted">No conversation history for this session. Start typing!</p>`;
+                    chatHistoryLeftEl.innerHTML = `<p class="text-center text-muted">No conversation history for this session. Start typing!</p>`;
+                    chatHistoryRightEl.innerHTML = `<p class="text-center text-muted">No conversation history for this session. Start typing!</p>`;
                 }
             } else if (response) {
                 console.error("DEBUG: fetchAndDisplayChatHistory: API responded with non-OK status:", response.status, await response.text());
-                chatHistoryChatGPT.innerHTML = `<p class="text-center text-danger">Failed to load chat history.</p>`;
-                chatHistoryGemini.innerHTML = `<p class="text-center text-danger">Failed to load chat history.</p>`;
+                chatHistoryLeftEl.innerHTML = `<p class="text-center text-danger">Failed to load chat history.</p>`;
+                chatHistoryRightEl.innerHTML = `<p class="text-center text-danger">Failed to load chat history.</p>`;
                 showMessageBox('Failed to load chat history for session.', 'danger');
             } else {
                 console.error("DEBUG: fetchAndDisplayChatHistory: fetchAPI returned null (network error or unhandled redirect).");
-                chatHistoryChatGPT.innerHTML = `<p class="text-center text-danger">Network error loading chat history.</p>`;
-                chatHistoryGemini.innerHTML = `<p class="text-center text-danger">Network error loading chat history.</p>`;
+                chatHistoryLeftEl.innerHTML = `<p class="text-center text-danger">Network error loading chat history.</p>`;
+                chatHistoryRightEl.innerHTML = `<p class="text-center text-danger">Network error loading chat history.</p>`;
                 showMessageBox('Network error loading chat history.', 'danger');
             }
         } catch (error) {
             console.error("DEBUG: fetchAndDisplayChatHistory: Caught network error:", error);
-            chatHistoryChatGPT.innerHTML = `<p class="text-center text-danger">Network error loading chat history.</p>`;
-            chatHistoryGemini.innerHTML = `<p class="text-center text-danger">Network error loading chat history.</p>`;
+            chatHistoryLeftEl.innerHTML = `<p class="text-center text-danger">Network error loading chat history.</p>`;
+            chatHistoryRightEl.innerHTML = `<p class="text-center text-danger">Network error loading chat history.</p>`;
             showMessageBox('Network error loading chat history.', 'danger');
         } finally {
             setLoadingChat(false); 
         }
     }
 
-    // Function to enable/disable the chat input and send button
     function enableChatInput(enable) {
         newPromptTextInput.disabled = !enable;
         sendPromptButton.disabled = !enable;
         if (enable) {
             newPromptTextInput.focus();
         }
+    }
+
+    // Helper function to get the API endpoint for a given model
+    function getModelApiEndpoint(modelName) {
+        const model = allModels.find(m => m.value === modelName);
+        if (model) {
+            return `/chat/${model.api_path}/${model.value}`;
+        }
+        return null; // Model not found
     }
 
     sendPromptForm.addEventListener('submit', async (e) => {
@@ -553,15 +545,22 @@
             return;
         }
 
+        const modelLeft = modelSelectLeft.value;
+        const modelRight = modelSelectRight.value;
+        if (!modelLeft || !modelRight) {
+            showMessageBox('Please select a model for both chat boxes.', 'danger');
+            return;
+        }
+
         setLoadingChat(true); 
 
         try {
             let sessionToUseId = activeChatSessionId;
-            let sessionToUseTitle = promptText.substring(0, 100); // Use prompt for new session title
+            let sessionToUseTitle = promptText.substring(0, 100);
 
             if (isNewSessionActive) {
                 console.log('DEBUG: sendPromptForm submit: New session active. Attempting to create session with title:', sessionToUseTitle);
-                const createSessionResponse = await fetchAPI('/chat_sessions', { // Use backend API
+                const createSessionResponse = await fetchAPI('/chat_sessions', {
                     method: 'POST',
                     body: JSON.stringify({ title: sessionToUseTitle, user_id: currentUser.user_id })
                 });
@@ -581,94 +580,83 @@
                 isNewSessionActive = false;
                 
                 history.pushState({ id: sessionToUseId, title: sessionToUseTitle }, '', `/dashboard?session=${sessionToUseId}&title=${encodeURIComponent(sessionToUseTitle)}`);
-                await fetchChatSessionsForSidebar(); // Refresh sidebar to show new session
+                await fetchChatSessionsForSidebar();
                 console.log('DEBUG: sendPromptForm submit: New chat session created:', newSessionData);
             }
 
-            // Get selected models
-            const selectedChatGPTModel = modelSelectChatGPT.value;
-            const selectedGeminiModel = modelSelectGemini.value;
-
-            // Append user prompt to both chat history arrays for the next API call
             const userMessage = { role: "user", content: promptText };
-            chatHistoryOpenAI.push(userMessage);
-            chatHistoryGoogle.push(userMessage);
+            chatHistoryLeft.push(userMessage);
+            chatHistoryRight.push(userMessage);
 
-            // Display user prompt in both chat boxes immediately
-            appendMessageToChatBox(chatHistoryChatGPT, 'You', promptText, 'user');
-            appendMessageToChatBox(chatHistoryGemini, 'You', promptText, 'user');
+            appendMessageToChatBox(chatHistoryLeftEl, 'You', promptText, 'user');
+            appendMessageToChatBox(chatHistoryRightEl, 'You', promptText, 'user');
 
-            // Prepare API calls for both models using the new fetchLLMAPI function
-            const openaiApiCall = fetchLLMAPI(`/chat/openai/${selectedChatGPTModel}`, {
+            const endpointLeft = getModelApiEndpoint(modelLeft);
+            const endpointRight = getModelApiEndpoint(modelRight);
+
+            const apiCallLeft = fetchLLMAPI(endpointLeft, {
                 method: 'POST',
                 body: JSON.stringify({
                     question: promptText,
-                    session_id: sessionToUseId, // Pass session_id to LLM API
-                    chat_history: chatHistoryOpenAI // Send OpenAI specific history
+                    session_id: sessionToUseId,
+                    chat_history: chatHistoryLeft
                 })
             });
 
-            const googleApiCall = fetchLLMAPI(`/chat/google/${selectedGeminiModel}`, {
+            const apiCallRight = fetchLLMAPI(endpointRight, {
                 method: 'POST',
                 body: JSON.stringify({
                     question: promptText,
-                    session_id: sessionToUseId, // Pass session_id to LLM API
-                    chat_history: chatHistoryGoogle // Send Google specific history
+                    session_id: sessionToUseId,
+                    chat_history: chatHistoryRight
                 })
             });
 
-            // Execute both API calls simultaneously
-            const [openaiResponsePromise, googleResponsePromise] = await Promise.allSettled([openaiApiCall, googleApiCall]);
+            const [responsePromiseLeft, responsePromiseRight] = await Promise.allSettled([apiCallLeft, apiCallRight]);
 
-            let chatGPTAnswer = "Error: No response from ChatGPT.";
-            let geminiAnswer = "Error: No response from Gemini.";
+            let answerLeft = "Error: No response from model.";
+            let answerRight = "Error: No response from model.";
 
-            // Process OpenAI response
-            if (openaiResponsePromise.status === 'fulfilled' && openaiResponsePromise.value && openaiResponsePromise.value.ok) {
-                const openaiData = await openaiResponsePromise.value.json();
-                chatGPTAnswer = openaiData.answer || "No answer provided.";
-                chatHistoryOpenAI.push({ role: "assistant", content: chatGPTAnswer }); // Add AI response to history
-                appendMessageToChatBox(chatHistoryChatGPT, 'ChatGPT', chatGPTAnswer, 'chatgpt');
+            if (responsePromiseLeft.status === 'fulfilled' && responsePromiseLeft.value && responsePromiseLeft.value.ok) {
+                const data = await responsePromiseLeft.value.json();
+                answerLeft = data.answer || "No answer provided.";
+                chatHistoryLeft.push({ role: "assistant", content: answerLeft });
+                appendMessageToChatBox(chatHistoryLeftEl, chatTitleLeft.textContent.replace(' Conversation', ''), answerLeft, 'assistant');
             } else {
-                const errorReason = openaiResponsePromise.reason ? openaiResponsePromise.reason.message : 'Unknown error';
-                console.error('Failed to get response from OpenAI:', errorReason);
-                showMessageBox('Failed to get response from ChatGPT.', 'danger');
-                // If there was an error, consider adding an error message to history as well
-                chatHistoryOpenAI.push({ role: "assistant", content: chatGPTAnswer }); // Add error message to history
-                appendMessageToChatBox(chatHistoryChatGPT, 'ChatGPT', chatGPTAnswer, 'chatgpt'); // Display error message in chat
+                const errorReason = responsePromiseLeft.reason ? responsePromiseLeft.reason.message : 'Unknown error';
+                console.error(`Failed to get response from ${modelLeft}:`, errorReason);
+                showMessageBox(`Failed to get response from ${modelLeft}.`, 'danger');
+                chatHistoryLeft.push({ role: "assistant", content: answerLeft });
+                appendMessageToChatBox(chatHistoryLeftEl, chatTitleLeft.textContent.replace(' Conversation', ''), answerLeft, 'assistant');
             }
 
-            // Process Google Gemini response
-            if (googleResponsePromise.status === 'fulfilled' && googleResponsePromise.value && googleResponsePromise.value.ok) {
-                const googleData = await googleResponsePromise.value.json();
-                geminiAnswer = googleData.answer || "No answer provided.";
-                chatHistoryGoogle.push({ role: "assistant", content: geminiAnswer }); // Add AI response to history
-                appendMessageToChatBox(chatHistoryGemini, 'Gemini', geminiAnswer, 'gemini');
+            if (responsePromiseRight.status === 'fulfilled' && responsePromiseRight.value && responsePromiseRight.value.ok) {
+                const data = await responsePromiseRight.value.json();
+                answerRight = data.answer || "No answer provided.";
+                chatHistoryRight.push({ role: "assistant", content: answerRight });
+                appendMessageToChatBox(chatHistoryRightEl, chatTitleRight.textContent.replace(' Conversation', ''), answerRight, 'assistant');
             } else {
-                const errorReason = googleResponsePromise.reason ? googleResponsePromise.reason.message : 'Unknown error';
-                console.error('Failed to get response from Google Gemini:', errorReason);
-                showMessageBox('Failed to get response from Gemini.', 'danger');
-                // If there was an error, consider adding an error message to history as well
-                chatHistoryGoogle.push({ role: "assistant", content: geminiAnswer }); // Add error message to history
-                appendMessageToChatBox(chatHistoryGemini, 'Gemini', geminiAnswer, 'gemini'); // Display error message in chat
+                const errorReason = responsePromiseRight.reason ? responsePromiseRight.reason.message : 'Unknown error';
+                console.error(`Failed to get response from ${modelRight}:`, errorReason);
+                showMessageBox(`Failed to get response from ${modelRight}.`, 'danger');
+                chatHistoryRight.push({ role: "assistant", content: answerRight });
+                appendMessageToChatBox(chatHistoryRightEl, chatTitleRight.textContent.replace(' Conversation', ''), answerRight, 'assistant');
             }
-
-            // Now, save the prompt and both LLM responses to the backend
-            // The backend `llm_responses` is `TEXT[]`, so we'll store both answers in it.
-            const savePromptResponse = await fetchAPI('/prompts', { // Use backend API
+            
+            const savePromptResponse = await fetchAPI('/prompts', {
                 method: 'POST',
                 body: JSON.stringify({
                     session_id: sessionToUseId,
                     user_id: currentUser.user_id,
                     prompt_text: promptText,
-                    llm_responses: [chatGPTAnswer, geminiAnswer] // Store both actual answers
+                    llm_responses: [answerLeft, answerRight]
                 })
             });
 
             if (savePromptResponse && savePromptResponse.ok) {
                 newPromptTextInput.value = '';
                 sendPromptForm.classList.remove('was-validated');
-                await fetchCurrentUserProfile(); // Refresh user profile (e.g., for quota updates)
+                await fetchCurrentUserProfile();
                 console.log('DEBUG: sendPromptForm submit: Prompt and LLM responses saved successfully.');
             } else {
                 const errorData = savePromptResponse ? await savePromptResponse.json() : {};
@@ -698,14 +686,13 @@
 
     newSessionButton.addEventListener('click', async () => {
         console.log("DEBUG: New Session Button Clicked.");
-        initializeChatArea(null, null); 
+        initializeChatArea(null, null);
     });
 
-    // Modified logout link handler to call clearToken()
     headerLogoutLink.addEventListener('click', (e) => {
-        e.preventDefault(); // Prevent default link behavior
+        e.preventDefault();
         console.log("DEBUG: Header Logout clicked. Calling clearToken().");
-        clearToken(); // Call the global clearToken function from base.html
+        clearToken();
     });
 
     function showLoadingSpinner(element, show) {
@@ -716,15 +703,12 @@
         }
     }
     
-    // Function to update the active session highlight in the sidebar
     function updateSidebarActiveSession() {
-        // Remove active class from all session links
         document.querySelectorAll('#sessions-7-days a, #sessions-30-days a').forEach(link => {
             link.classList.remove('active');
             link.removeAttribute('aria-current');
         });
 
-        // Add active class to the currently active session
         if (activeChatSessionId) {
             const activeLink = document.querySelector(`[data-chat-session-id="${activeChatSessionId}"]`);
             if (activeLink) {
@@ -738,13 +722,50 @@
         history.pushState({ id: sessionId, title: sessionTitle }, '', `/dashboard?session=${sessionId}&title=${encodeURIComponent(sessionTitle)}`);
         initializeChatArea(sessionId, sessionTitle);
     }
+    
+    function updateChatTitles() {
+        const selectedLeft = modelSelectLeft.options[modelSelectLeft.selectedIndex].text;
+        const selectedRight = modelSelectRight.options[modelSelectRight.selectedIndex].text;
+        chatTitleLeft.textContent = `${selectedLeft} Conversation`;
+        chatTitleRight.textContent = `${selectedRight} Conversation`;
+    }
+
+    // Function to populate and sync model dropdowns
+    function syncModelDropdowns() {
+        const selectedLeft = modelSelectLeft.value;
+        const selectedRight = modelSelectRight.value;
+
+        // Clear and repopulate left dropdown
+        modelSelectLeft.innerHTML = '';
+        allModels.forEach(model => {
+            if (model.value !== selectedRight) {
+                const option = document.createElement('option');
+                option.value = model.value;
+                option.textContent = model.text;
+                modelSelectLeft.appendChild(option);
+            }
+        });
+        modelSelectLeft.value = selectedLeft;
+        
+        // Clear and repopulate right dropdown
+        modelSelectRight.innerHTML = '';
+        allModels.forEach(model => {
+            if (model.value !== selectedLeft) {
+                const option = document.createElement('option');
+                option.value = model.value;
+                option.textContent = model.text;
+                modelSelectRight.appendChild(option);
+            }
+        });
+        modelSelectRight.value = selectedRight;
+        
+        updateChatTitles();
+    }
 
 
     // --- Initial Load Logic ---
-    // NEW: Variable to hold the LLM API Base URL
-    const LLM_API_BASE_URL = "{{ llm_api_base_url }}".replace(/\/+$/, ''); // Remove trailing slashes
-    
-    // NEW SCRIPT to fetch and populate model dropdowns
+    const LLM_API_BASE_URL = "{{ llm_api_base_url }}".replace(/\/+$/, '');
+
     async function populateModelDropdownsFromText() {
         try {
             const response = await fetch('/static/models.txt');
@@ -752,52 +773,50 @@
                 throw new Error('Failed to load models list from file.');
             }
             const data = await response.text();
-            const models = data.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-
-            const chatgptDropdown = document.getElementById('model-select-chatgpt');
-            const geminiDropdown = document.getElementById('model-select-gemini');
-
-            // Clear existing options
-            chatgptDropdown.innerHTML = '';
-            geminiDropdown.innerHTML = '';
-
-            models.forEach(modelLine => {
-                const parts = modelLine.split(':');
-                if (parts.length === 2) {
-                    const value = parts[0].trim();
-                    const text = parts[1].trim();
-
-                    // Create and append options for ChatGPT dropdown
-                    const chatgptOption = document.createElement('option');
-                    chatgptOption.value = value;
-                    chatgptOption.textContent = text;
-                    chatgptDropdown.appendChild(chatgptOption);
-
-                    // Create and append options for Gemini dropdown
-                    const geminiOption = document.createElement('option');
-                    geminiOption.value = value;
-                    geminiOption.textContent = text;
-                    geminiDropdown.appendChild(geminiOption);
+            allModels = data.split('\n').map(line => {
+                const parts = line.split(':');
+                if (parts.length === 3) {
+                    const api_path = parts[0].trim();
+                    const value = parts[1].trim();
+                    const text = parts[2].trim();
+                    return { value, text, api_path };
                 }
+                return null;
+            }).filter(model => model !== null);
+
+            // Initial population
+            allModels.forEach(model => {
+                const optionLeft = document.createElement('option');
+                optionLeft.value = model.value;
+                optionLeft.textContent = model.text;
+                modelSelectLeft.appendChild(optionLeft);
+
+                const optionRight = document.createElement('option');
+                optionRight.value = model.value;
+                optionRight.textContent = model.text;
+                modelSelectRight.appendChild(optionRight);
             });
 
-            // Set default selected values after populating
-            chatgptDropdown.value = 'gpt-4o';
-            geminiDropdown.value = 'gemini-1.5-pro-latest';
+            // Set initial default models and sync
+            modelSelectLeft.value = 'gpt-4o';
+            modelSelectRight.value = 'gemini-1.5-pro-latest';
+            syncModelDropdowns();
+
+            // Add event listeners for syncing
+            modelSelectLeft.addEventListener('change', syncModelDropdowns);
+            modelSelectRight.addEventListener('change', syncModelDropdowns);
             
-            console.log('Model dropdowns populated successfully from text file.');
+            console.log('Model dropdowns populated and synced successfully.');
         } catch (error) {
             console.error('Error populating model dropdowns:', error);
-            // You might want to fall back to hardcoded values or show an error to the user here
         }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
         console.log('Dashboard using BACKEND_API_URL:', BACKEND_API_URL);
-        console.log('Dashboard using LLM_API_BASE_URL:', LLM_API_BASE_URL); // Log the new LLM URL
+        console.log('Dashboard using LLM_API_BASE_URL:', LLM_API_BASE_URL);
         console.log("DEBUG: DOMContentLoaded: Page loaded.");
         
-        // Call the new function to populate dropdowns from the text file
         await populateModelDropdownsFromText();
 
         authToken = localStorage.getItem('jwt_token');
@@ -832,7 +851,6 @@
         }
     });
 
-    // Handle browser back/forward history for SPA-like navigation
     window.addEventListener('popstate', (event) => {
         console.log("DEBUG: Popstate event triggered.");
         const urlParams = new URLSearchParams(window.location.search);
@@ -848,7 +866,6 @@
         }
     });
 
-    // Helper for showing/hiding loading spinners in general
     function showLoadingSpinner(element, show) {
         if (show) {
             element.classList.remove('d-none');
@@ -857,13 +874,11 @@
         }
     }
     
-    // Add the collapsible sidebar function
     function toggleSidebar(side) {
         const sidebar = document.getElementById(side === 'left' ? 'left-sidebar' : 'right-sidebar');
         sidebar.classList.toggle('collapsed');
     }
 
-    // New event listeners for auto-collapse
     const leftSidebar = document.getElementById('left-sidebar');
     const rightSidebar = document.getElementById('right-sidebar');
 
