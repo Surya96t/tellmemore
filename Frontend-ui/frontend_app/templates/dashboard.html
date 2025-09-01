@@ -79,6 +79,10 @@
         .justified-text {
             text-align: justify;
         }
+
+	html, body, .dashboard-container, .main-content-row, #main-chat-area {
+    	    transition: all 0.3s ease;
+	}
     </style>
 
     <div class="dashboard-container">
@@ -88,7 +92,7 @@
                 TellMeMore
             </span>
             <div class="d-flex align-items-center">
-                <i class="bi bi-three-dots-vertical me-3 text-secondary"></i>
+                <i class="bi bi-arrows-fullscreen me-3 text-secondary" id="fullscreen-toggle" style="cursor: pointer;" title="Toggle Full Screen"></i>
                 <div class="profile-circle me-2" id="header-profile-circle">U</div>
                 <a href="#" id="header-logout-link" class="text-danger fw-semibold text-decoration-none">Logout</a>
             </div>
@@ -903,6 +907,47 @@
     rightSidebar.addEventListener('mouseleave', () => {
         if (!rightSidebar.classList.contains('collapsed')) {
             rightSidebar.classList.add('collapsed');
+        }
+    });
+
+	function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error("Fullscreen request failed:", err);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    document.getElementById('fullscreen-toggle').addEventListener('click', toggleFullScreen);
+
+    document.addEventListener('fullscreenchange', () => {
+        const fsButton = document.getElementById('fullscreen-toggle');
+        if (fsButton) {
+            fsButton.classList.toggle('bi-arrows-fullscreen', !document.fullscreenElement);
+            fsButton.classList.toggle('bi-dash-square', !!document.fullscreenElement);
+        }
+
+        const isFullscreen = !!document.fullscreenElement;
+        const leftSidebar = document.getElementById('left-sidebar');
+        const rightSidebar = document.getElementById('right-sidebar');
+
+        if (isFullscreen) {
+            if (!leftSidebar.classList.contains('collapsed')) {
+                leftSidebar.classList.add('collapsed');
+            }
+            if (!rightSidebar.classList.contains('collapsed')) {
+                rightSidebar.classList.add('collapsed');
+            }
+        }
+    });
+
+    // Optional: F11 shortcut
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'F11') {
+            e.preventDefault();
+            toggleFullScreen();
         }
     });
 </script>
