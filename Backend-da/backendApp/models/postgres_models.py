@@ -1,12 +1,12 @@
 # --- File: backendApp/models/postgres_models.py ---
 # This file defines your SQLAlchemy ORM models.
 
-from sqlalchemy import Column, String, Integer, DateTime, Text, ARRAY, JSON
+from sqlalchemy import Column, String, Integer, DateTime, Text, ARRAY, JSON , ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 import uuid
-from sqlalchemy import Column, String, ForeignKey, Text
+from sqlalchemy import Column, String,  Text
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
@@ -59,11 +59,15 @@ class SystemPrompt(Base):
     prompt_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)    
     prompt_text = Column(Text, nullable=False)
 
+# Corrected UserPrompt model from backendApp/models/postgres_models.py
+
 class UserPrompt(Base):
     __tablename__ = "user_prompts"
     prompt_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"))    
+    # The ForeignKey links this column to the 'user_id' in the 'users' table
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=False)    
     prompt_text = Column(Text, nullable=False)
 
-    # Add this relationship to link back to User
+    # The 'relationship' links this model back to the User model,
+    # with a back-population reference
     user = relationship("User", back_populates="user_prompts")

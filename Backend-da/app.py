@@ -9,7 +9,10 @@ from backendApp.api.users import router as users_router
 from backendApp.api.chat_sessions import router as chat_sessions_router
 from backendApp.api.prompts import router as prompts_router
 from backendApp.api.audit_logs import router as audit_logs_router
-from backendApp.api.auth import router as auth_router # Import the auth router
+from backendApp.api.auth import router as auth_router
+from backendApp.api.system_prompts import router as system_prompts_router
+from backendApp.api.user_prompts import router as user_prompts_router
+
 
 # --- Lifespan Context Manager ---
 @asynccontextmanager
@@ -31,14 +34,17 @@ app = FastAPI(
     description="API for managing users, chat sessions, prompts, quotas, and audit logs for an LLM application.",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/api/v1/docs", # API documentation URL
-    redoc_url="/api/v1/redoc" # Redoc documentation URL
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
-# --- CORS Configuration ---
-# Get allowed origins from environment variable, split by comma
-# This should include the URL of your separate frontend application (e.g., http://localhost:8080)
-origins = os.getenv("CORS_ORIGINS", "http://localhost:8080,http://127.0.0.1:8080").split(",")
+# --- CORS Middleware ---
+# Define the list of allowed origins (your frontend's URL)
+origins = [
+    "http://localhost:8080",  # Your local frontend development server
+    "http://127.0.0.1:8080",
+    # Add your production frontend URL here when deployed
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -57,16 +63,16 @@ api_v1_router.include_router(auth_router, prefix="/auth", tags=["Authentication"
 api_v1_router.include_router(users_router, prefix="/users", tags=["Users"])
 api_v1_router.include_router(chat_sessions_router, prefix="/chat_sessions", tags=["Chat Sessions"])
 api_v1_router.include_router(prompts_router, prefix="/prompts", tags=["Prompts"])
+api_v1_router.include_router(system_prompts_router, prefix="/system_prompts", tags=["System Prompts"])
+api_v1_router.include_router(user_prompts_router, prefix="/user_prompts", tags=["User Prompts"])
 api_v1_router.include_router(audit_logs_router, prefix="/audit_logs", tags=["Audit Logs"])
+
 
 # Include the main api_v1_router in the FastAPI app
 app.include_router(api_v1_router)
 print("api_v1_router has been included in the main app.")
 
 # Root endpoint for basic backend API check (not serving frontend HTML)
-@app.get("/")
+@app.get("/", tags=["Root"])
 def read_root():
-    host = os.getenv("HOST", "127.0.0.1")
-    port = os.getenv("PORT", "8000")
-    base_api_url = f"http://{host}:{port}/api/v1"
-    return {"message": f"Welcome to the LLM Interaction API! Access documentation at {base_api_url}/docs"}
+    return {"message": "Welcome to the LLM Interaction API. Please use the /docs endpoint for API documentation."}

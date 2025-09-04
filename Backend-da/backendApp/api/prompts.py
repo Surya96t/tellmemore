@@ -4,9 +4,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from backendApp.schemas.prompt_schemas import PromptCreate, PromptBase, PromptResponse
-from backendApp.schemas.addon_prompt_schemas import SystemPromptCreate, SystemPrompt, UserPromptCreate, UserPrompt
 from backendApp.services.prompt_service import PromptService
-from backendApp.dependencies import get_db
+from backendApp.dependencies import get_db # Import get_db from dependencies
 
 import uuid
 from typing import List
@@ -45,31 +44,3 @@ def delete_prompt_api(prompt_id: uuid.UUID, db: Session = Depends(get_db)):
     if not prompt_service.delete_prompt(db, prompt_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Prompt not found")
     return {"message": "Prompt deleted successfully"}
-
-# --- New routes for addon prompts below ---
-
-@router.post("/system", response_model=SystemPrompt)
-def create_system_prompt_api(
-    prompt_data: SystemPromptCreate, db: Session = Depends(get_db)
-):
-    """Create a new system prompt."""
-    return prompt_service.create_system_prompt(db, prompt_data=prompt_data)
-
-@router.get("/system", response_model=List[SystemPrompt])
-def get_all_system_prompts_api(db: Session = Depends(get_db)):
-    """Retrieve all system prompts."""
-    return prompt_service.get_all_system_prompts(db)
-
-@router.post("/user/{user_id}", response_model=UserPrompt)
-def create_user_prompt_api(
-    user_id: uuid.UUID,
-    prompt_data: UserPromptCreate,
-    db: Session = Depends(get_db)
-):
-    """Create a new user prompt."""
-    return prompt_service.create_user_prompt(db, user_id=user_id, prompt_data=prompt_data)
-
-@router.get("/user/{user_id}", response_model=List[UserPrompt])
-def get_user_prompts_api(user_id: uuid.UUID, db: Session = Depends(get_db)):
-    """Retrieve all prompts for a specific user."""
-    return prompt_service.get_user_prompts_by_user(db, user_id=user_id)

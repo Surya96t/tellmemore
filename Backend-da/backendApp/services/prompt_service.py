@@ -2,11 +2,9 @@
 # This file contains the business logic for Prompt operations.
 
 from sqlalchemy.orm import Session
-from backendApp.models.postgres_models import Prompt, User, ChatSession, SystemPrompt, UserPrompt
-from backendApp.schemas.addon_prompt_schemas import SystemPromptCreate, SystemPrompt as SystemPromptSchema, UserPromptCreate, UserPrompt as UserPromptSchema
+from backendApp.models.postgres_models import Prompt, User, ChatSession
 from backendApp.schemas.prompt_schemas import PromptCreate, PromptBase
 import uuid
-from datetime import datetime
 
 class PromptService:
     def create_prompt(self, db: Session, prompt: PromptCreate):
@@ -43,34 +41,3 @@ class PromptService:
             db.commit()
             return True
         return False
-    
-    # --- New functions for addon prompts below ---
-
-    def create_system_prompt(self, db: Session, prompt_data: SystemPromptCreate):
-        """Creates a new system prompt."""
-        db_prompt = SystemPrompt(
-            prompt_text=prompt_data.prompt_text
-        )
-        db.add(db_prompt)
-        db.commit()
-        db.refresh(db_prompt)
-        return db_prompt
-
-    def get_all_system_prompts(self, db: Session):
-        """Retrieves all system prompts."""
-        return db.query(SystemPrompt).all()
-
-    def create_user_prompt(self, db: Session, user_id: uuid.UUID, prompt_data: UserPromptCreate):
-        """Creates a new user prompt."""
-        db_prompt = UserPrompt(
-            user_id=user_id,
-            prompt_text=prompt_data.prompt_text
-        )
-        db.add(db_prompt)
-        db.commit()
-        db.refresh(db_prompt)
-        return db_prompt
-
-    def get_user_prompts_by_user(self, db: Session, user_id: uuid.UUID):
-        """Retrieves all prompts for a specific user."""
-        return db.query(UserPrompt).filter(UserPrompt.user_id == user_id).all()
