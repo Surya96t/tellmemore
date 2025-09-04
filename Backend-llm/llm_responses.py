@@ -41,7 +41,7 @@ def get_llm_responses(user_input: str) -> dict:
     return {
         "openai": openai_llm.invoke(message).content,
         "groq": groq_llm.invoke(message).content,
-        "gemini": gemini_llm.invoke(message).content,
+        "gemini": gemini_llm.invoke(message),
     }
 
 
