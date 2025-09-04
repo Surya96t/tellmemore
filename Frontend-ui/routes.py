@@ -16,8 +16,7 @@ async def auth_page(request: Request):
     Serves the authentication (login/register) page as the default root.
     """
     # Pass both backend and LLM API URLs to the template
-    print(f"DEBUG (frontend routes.py): backend_api_url being passed to auth.html: {settings.BACKEND_API_URL}")
-    print(f"DEBUG (frontend routes.py): llm_api_base_url being passed to auth.html: {settings.LLM_API_BASE_URL}")
+    
     return templates.TemplateResponse(
         "auth.html",
         {
@@ -33,8 +32,7 @@ async def login_page(request: Request):
     Serves the authentication (login/register) page.
     """
     # Pass both backend and LLM API URLs to the template
-    print(f"DEBUG (frontend routes.py): backend_api_url being passed to auth.html: {settings.BACKEND_API_URL}")
-    print(f"DEBUG (frontend routes.py): llm_api_base_url being passed to auth.html: {settings.LLM_API_BASE_URL}")
+    
     return templates.TemplateResponse(
         "auth.html",
         {
@@ -50,8 +48,6 @@ async def register_page(request: Request):
     Serves a registration page (reusing auth.html).
     """
     # Pass both backend and LLM API URLs to the template
-    print(f"DEBUG (frontend routes.py): backend_api_url being passed to auth.html: {settings.BACKEND_API_URL}")
-    print(f"DEBUG (frontend routes.py): llm_api_base_url being passed to auth.html: {settings.LLM_API_BASE_URL}")
     return templates.TemplateResponse(
         "auth.html",
         {
@@ -68,8 +64,7 @@ async def dashboard_page(request: Request):
     Serves the protected dashboard page.
     """
     # Pass both backend and LLM API URLs to the template
-    print(f"DEBUG (frontend routes.py): backend_api_url being passed to dashboard.html: {settings.BACKEND_API_URL}")
-    print(f"DEBUG (frontend routes.py): llm_api_base_url being passed to dashboard.html: {settings.LLM_API_BASE_URL}")
+
     return templates.TemplateResponse(
         "dashboard.html",
         {

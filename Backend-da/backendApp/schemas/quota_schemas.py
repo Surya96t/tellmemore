@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime
 
 class QuotaBase(BaseModel):
-    daily_limit: int = 100
+    daily_limit: int = 10000
     used_today: int = 0
     last_reset: Optional[datetime] = None
 
