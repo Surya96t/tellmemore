@@ -7,7 +7,7 @@
     <div class="card shadow-lg p-4 p-md-5 w-100" style="max-width: 450px; border-radius: 1rem;">
         <h3 id="auth-title" class="text-center mb-4"></h3>
         <div class="text-center mb-4">
-            <img src="/static/logo.jpg" alt="TellMeMore Logo" style="height: 115px; margin-bottom: 5px;">
+            <img src="/static/logo.jpg" alt="TellMeMore Logo" style="height: 200px; margin-bottom: 5px;">
         </div>
         
         <form id="auth-form" class="needs-validation" novalidate>
@@ -65,13 +65,13 @@
 
     function updateUI() {
         if (isRegisterMode) {
-            authTitle.textContent = 'Register for TellMeMore';
+            authTitle.textContent = 'Register';
             nameField.style.display = 'block';
             nameInput.removeAttribute('required'); // Name is optional for registration
             submitButton.textContent = 'Register';
             toggleAuthModeButton.textContent = 'Login here';
         } else {
-            authTitle.textContent = 'Login to TellMeMore';
+            authTitle.textContent = 'Login';
             nameField.style.display = 'none';
             nameInput.removeAttribute('required'); // Ensure it's not required if switching from register
             submitButton.textContent = 'Login';
