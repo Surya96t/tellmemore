@@ -182,17 +182,11 @@
                     <div class="card border-0 p-3 mb-4 rounded-3 bg-white shadow-sm">
                         <h6 class="fw-bold mb-3 text-primary">System Prompts</h6>
                         <div id="system-prompts-list" class="form-check-group">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" value="prompt1" id="systemPrompt1">
-                                <label class="form-check-label text-body" for="systemPrompt1">prompt 1</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" value="prompt2" id="systemPrompt2">
-                                <label class="form-check-label text-body" for="systemPrompt2">prompt 2</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" value="prompt3" id="systemPrompt3">
-                                <label class="form-check-label text-body" for="systemPrompt3">prompt 3</label>
+                            <div class="text-center text-muted py-2">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                Loading...
                             </div>
                         </div>
                     </div>
@@ -200,26 +194,11 @@
                     <div class="card border-0 p-3 rounded-3 bg-white shadow-sm">
                         <h6 class="fw-bold mb-3 text-primary">User’s Prompts</h6>
                         <div id="user-prompts-list" class="form-check-group">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="form-check flex-grow-1">
-                                    <input class="form-check-input" type="checkbox" value="userPrompt1" id="userPromptUser1">
-                                    <label class="form-check-label text-body" for="userPromptUser1">prompt 1</label>
+                            <div class="text-center text-muted py-2">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
                                 </div>
-                                <a href="#" class="btn btn-sm btn-outline-secondary ms-2" style="border-radius: 0.5rem;">Edit</a>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="form-check flex-grow-1">
-                                    <input class="form-check-input" type="checkbox" value="userPrompt2" id="userPromptUser2">
-                                    <label class="form-check-label text-body" for="userPrompt2">prompt 2</label>
-                                </div>
-                                <a href="#" class="btn btn-sm btn-outline-secondary ms-2" style="border-radius: 0.5rem;">Edit</a>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="form-check flex-grow-1">
-                                    <input class="form-check-input" type="checkbox" value="userPrompt3" id="userPromptUser3">
-                                    <label class="form-check-label text-body" for="userPrompt3">prompt 3</label>
-                                </div>
-                                <a href="#" class="btn btn-sm btn-outline-secondary ms-2" style="border-radius: 0.5rem;">Edit</a>
+                                Loading...
                             </div>
                         </div>
                         <button class="btn btn-primary btn-sm mt-3 fw-semibold" style="border-radius: 0.5rem;">
@@ -267,6 +246,9 @@
 
     const modelSelectLeft = document.getElementById('model-select-left');
     const modelSelectRight = document.getElementById('model-select-right');
+
+    const systemPromptsList = document.getElementById('system-prompts-list');
+    const userPromptsList = document.getElementById('user-prompts-list');
 
 
     // --- Helper Functions ---
@@ -521,6 +503,166 @@
             setLoadingChat(false); 
         }
     }
+    
+/////
+    /**
+     * Fetches user prompts dynamically based on a user ID and renders them in the dashboard.
+     * @param {string} userId - The ID of the current user.
+     */
+    async function fetchAndDisplayUserPrompts(userId) {
+        const userPromptsList = document.getElementById('user-prompts-list');
+                
+        // Check if the HTML element exists first
+        if (!userPromptsList) {
+            console.error("ERROR: The element with ID 'user-prompts-list' was not found.");
+            return;
+        }
+
+        // Check if the userId is provided
+        if (!userId) {
+            userPromptsList.innerHTML = `<p class="text-danger text-center p-2">User ID is missing. Cannot load prompts.</p>`;
+            return;
+        }
+
+        try {
+            // Fetch prompts using the provided userId
+            const response = await fetchAPI(`/user_prompts/user/${userId}`);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch user prompts: ${response.statusText}`);
+            }
+            
+            const userPrompts = await response.json();
+            console.log("DEBUG: fetchAndDisplayUserPrompts: User prompts fetched successfully:", userPrompts);
+                
+
+            // Clear the loading indicator.
+            userPromptsList.innerHTML = '';
+
+            if (userPrompts.length === 0) {
+                userPromptsList.innerHTML = `<p class="text-muted text-center p-2">No user prompts have been created.</p>`;
+                return;
+            }
+
+            // Create and add a checkbox for each prompt.
+            userPrompts.forEach(prompt => {
+                const formCheckDiv = document.createElement('div');
+                formCheckDiv.className = 'form-check p-2';
+
+                const checkbox = document.createElement('input');
+                checkbox.className = 'form-check-input';
+                checkbox.type = 'checkbox';
+                checkbox.id = `user-prompt-${prompt.prompt_id}`;
+                checkbox.value = prompt.prompt_id;
+
+                const label = document.createElement('label');
+                label.className = 'form-check-label';
+                label.htmlFor = `user-prompt-${prompt.prompt_id}`;
+                label.textContent = prompt.prompt_text;
+
+                formCheckDiv.appendChild(checkbox);
+                formCheckDiv.appendChild(label);
+                userPromptsList.appendChild(formCheckDiv);
+            });
+
+        } catch (error) {
+            console.error('Error fetching user prompts:', error);
+            userPromptsList.innerHTML = `<p class="text-danger text-center p-2">Error loading prompts. Please try again later.</p>`;
+        }
+    } 
+
+
+ /////
+ 
+ /**
+     * Fetches system prompts dynamically  and renders them in the dashboard.
+     */
+    async function fetchAndDisplaySystemPrompts() {
+        const systemPromptsList = document.getElementById('system-prompts-list');
+                
+        // Check if the HTML element exists first
+        if (!systemPromptsList) {
+            console.error("ERROR: The element with ID 'user-prompts-list' was not found.");
+            return;
+        }
+
+       
+        try {
+            // Fetch prompts using the provided userId
+            const response = await fetchAPI(`/system_prompts`);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch system prompts: ${response.statusText}`);
+            }
+            
+            const systemPrompts = await response.json();
+            console.log("DEBUG: fetchAndDisplaySystemPrompts: System prompts fetched successfully:", systemPrompts);
+
+            // Clear the loading indicator.
+            systemPromptsList.innerHTML = '';
+
+            if (systemPrompts.length === 0) {
+                systemPromptsList.innerHTML = `<p class="text-muted text-center p-2">No system prompts have been created.</p>`;
+                return;
+            }
+
+            // Create and add a checkbox for each prompt.
+            systemPrompts.forEach(prompt => {
+                const formCheckDiv = document.createElement('div');
+                formCheckDiv.className = 'form-check p-2';
+
+                const checkbox = document.createElement('input');
+                checkbox.className = 'form-check-input';
+                checkbox.type = 'checkbox';
+                checkbox.id = `system-prompt-${prompt.prompt_id}`;
+                checkbox.value = prompt.prompt_id;
+
+                const label = document.createElement('label');
+                label.className = 'form-check-label';
+                label.htmlFor = `system-prompt-${prompt.prompt_id}`;
+                label.textContent = prompt.prompt_text;
+
+                formCheckDiv.appendChild(checkbox);
+                formCheckDiv.appendChild(label);
+                systemPromptsList.appendChild(formCheckDiv);
+            });
+
+        } catch (error) {
+            console.error('Error fetching user prompts:', error);
+            systemPromptsList.innerHTML = `<p class="text-danger text-center p-2">Error loading prompts. Please try again later.</p>`;
+        }
+    } 
+/////
+// This function retrieves the text of all user prompts that are currently checked.
+// It assumes the user prompts are contained within an element with the ID 'user-prompts-container',
+// and that each checkbox has a corresponding label with the prompt text.
+function getCheckedUserPrompts() {
+    // Select all checked checkboxes that are descendants of the user prompts container.
+    // The selector targets elements with the class 'form-check-input' and the ':checked' pseudo-class.
+    const checkedCheckboxes = document.querySelectorAll('#user-prompts-container .form-check-input:checked');
+
+    // Initialize an array to store the text of the checked prompts.
+    const checkedPrompts = [];
+
+    // Iterate over each checked checkbox found.
+    checkedCheckboxes.forEach(checkbox => {
+        // Find the label element associated with the current checkbox.
+        // We use the 'for' attribute of the label, which should match the 'id' of the input.
+        const promptLabel = document.querySelector(`label[for="${checkbox.id}"]`);
+        
+        // If a corresponding label is found, add its text content to the array.
+        if (promptLabel) {
+            checkedPrompts.push(promptLabel.textContent.trim());
+        }
+    });
+
+    // Return the array of checked prompt strings.
+    return checkedPrompts;
+}
+
+////
+
+
 
     function enableChatInput(enable) {
         newPromptTextInput.disabled = !enable;
@@ -588,7 +730,9 @@
                 console.log('DEBUG: sendPromptForm submit: New chat session created:', newSessionData);
             }
 
-            const userMessage = { role: "user", content: promptText };
+            const userMessage = { role: "user", content: promptText };   
+            const userPromptsListChecked = getCheckedUserPrompts();
+            console.log("DEBUG: Checked User Prompts:", userPromptsListChecked);         
             chatHistoryLeft.push(userMessage);
             chatHistoryRight.push(userMessage);
 
@@ -833,9 +977,11 @@
         }
 
         await fetchCurrentUserProfile();
+        await fetchAndDisplaySystemPrompts();
         
         if (currentUser && currentUser.user_id) {
             await fetchChatSessionsForSidebar();
+            await fetchAndDisplayUserPrompts(currentUser.user_id );            
         } else {
             console.error("DEBUG: DOMContentLoaded: currentUser or user_id not available. Cannot fetch chat sessions.");
             noSessionsSidebar.classList.remove('d-none');

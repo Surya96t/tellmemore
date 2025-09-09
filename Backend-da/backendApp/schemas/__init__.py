@@ -8,3 +8,5 @@ from .chat_session_schemas import ChatSessionBase, ChatSessionCreate, ChatSessio
 from .prompt_schemas import PromptBase, PromptCreate, PromptResponse
 from .audit_log_schemas import AuditLogBase, AuditLogCreate, AuditLogResponse
 from .auth_schemas import LoginRequest, Token, TokenData
+from .system_prompt_schemas import SystemPromptBase, SystemPromptCreate, SystemPromptUpdate, SystemPromptResponse
+from .user_prompt_schemas import UserPromptBase, UserPromptCreate, UserPromptResponse
