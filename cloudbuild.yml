@@ -1,0 +1,133 @@
+# This file defines the automated build, push, and deploy pipeline for the 'tellmemore' project.
+# It is executed by Google Cloud Build.
+
+steps:
+  # ==================================================================================================
+  # Step 1 & 2 (in parallel): Build the container images for the three services.
+  # We use the official Docker builder from Google.
+  # The images are tagged with the short git commit SHA for versioning.
+  # ==================================================================================================
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Build Backend-da"
+    args:
+      - "build"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/backend-da:$SHORT_SHA"
+      - "."
+    dir: "Backend-da"
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Build Backend-llm"
+    args:
+      - "build"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/backend-llm:$SHORT_SHA"
+      - "."
+    dir: "Backend-llm"
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Build Frontend-ui"
+    args:
+      - "build"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/frontend-ui:$SHORT_SHA"
+      - "."
+    dir: "Frontend-ui"
+
+  # ==================================================================================================
+  # Step 3 & 4 (in parallel): Push the built images to Google Artifact Registry.
+  # These steps will only run after their corresponding build step is complete.
+  # ==================================================================================================
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Push Backend-da"
+    args:
+      - "push"
+      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/backend-da:$SHORT_SHA"
+    waitFor: ["Build Backend-da"]
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Push Backend-llm"
+    args:
+      - "push"
+      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/backend-llm:$SHORT_SHA"
+    waitFor: ["Build Backend-llm"]
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Push Frontend-ui"
+    args:
+      - "push"
+      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/frontend-ui:$SHORT_SHA"
+    waitFor: ["Build Frontend-ui"]
+
+  # ==================================================================================================
+  # Step 5 (in parallel): Deploy the backend services to Cloud Run.
+  # They are set to 'internal' ingress, so they are not exposed to the public internet.
+  # ==================================================================================================
+  - name: "gcr.io/google-cloud-sdk/gcloud"
+    id: "Deploy Backend-da"
+    args:
+      - "run"
+      - "deploy"
+      - "backend-da"
+      - "--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/backend-da:$SHORT_SHA"
+      - "--region=${_REGION}"
+      - "--platform=managed"
+      - "--ingress=internal"
+      - "--port=8000"
+      - "--set-env-vars=CORS_ORIGINS=https://deepoctopus.com" # Your non-sensitive config
+      - "--set-secrets=SECRET_KEY=tellmemore-secret-key:latest,DATABASE_URL=database-url:latest" # Mount your secrets
+    waitFor: ["Push Backend-da"]
+
+  - name: "gcr.io/google-cloud-sdk/gcloud"
+    id: "Deploy Backend-llm"
+    args:
+      - "run"
+      - "deploy"
+      - "backend-llm"
+      - "--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/backend-llm:$SHORT_SHA"
+      - "--region=${_REGION}"
+      - "--platform=managed"
+      - "--ingress=internal"
+      - "--port=8001"
+      - "--set-env-vars=CORS_ORIGINS=https://deepoctopus.com" # Your non-sensitive config
+      - "--set-secrets=OPENAI_API_KEY=openai-api-key:latest,GROQ_API_KEY=groq-api-key:latest,GOOGLE_API_KEY=google-api-key:latest" # Mount your secrets
+    waitFor: ["Push Backend-llm"]
+
+  # ==================================================================================================
+  # Step 6 (Final Step): Deploy the frontend service to Cloud Run.
+  # This step waits for the backends to be deployed first.
+  # It is configured for public access and is passed the URLs of the backend services
+  # as environment variables for service-to-service communication.
+  # ==================================================================================================
+
+  - name: "gcr.io/google-cloud-sdk/gcloud"
+    id: "Deploy Frontend-ui"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        # First, get the URLs of the internal backend services after they are deployed.
+        BACKEND_DA_URL=$$(gcloud run services describe backend-da --platform managed --region ${_REGION} --format 'value(status.url)')
+        BACKEND_LLM_URL=$$(gcloud run services describe backend-llm --platform managed --region ${_REGION} --format 'value(status.url)')
+
+        # Now, deploy the frontend and pass the backend URLs as environment variables.
+        gcloud run deploy frontend-ui \
+          --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/frontend-ui:$SHORT_SHA \
+          --region=${_REGION} \
+          --platform=managed \
+          --ingress=all \
+          --allow-unauthenticated \
+          --port=8080 \
+          --set-env-vars="BACKEND_DA_URL=$$BACKEND_DA_URL,BACKEND_LLM_URL=$$BACKEND_LLM_URL"
+    waitFor: ["Deploy Backend-da", "Deploy Backend-llm", "Push Frontend-ui"]
+
+# ==================================================================================================
+# Configuration for the build environment.
+# ==================================================================================================
+# We define some variables here to make the file easier to read and modify.
+substitutions:
+  _REGION: "us-east4" # Your chosen deployment region
+  _AR_REPO: "tmm-images" # Your Artifact Registry repository name
+
+# Increase the default timeout for the build process.
+timeout: "1200s"
