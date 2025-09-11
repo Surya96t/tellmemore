@@ -13,7 +13,6 @@ from backendApp.api.auth import router as auth_router
 from backendApp.api.system_prompts import router as system_prompts_router
 from backendApp.api.user_prompts import router as user_prompts_router
 
-
 # --- Lifespan Context Manager ---
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -38,12 +37,16 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "https://deepoctopus.com")
+
 # --- CORS Middleware ---
 # Define the list of allowed origins (your frontend's URL)
 origins = [
     "http://localhost:8080",  # Your local frontend development server
     "http://127.0.0.1:8080",
     # Add your production frontend URL here when deployed
+    "CORS_ORIGINS"  # Environment variable for production frontend URL
+    
 ]
 
 app.add_middleware(
