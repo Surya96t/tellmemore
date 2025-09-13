@@ -13,7 +13,7 @@ from typing import List
 router = APIRouter()
 prompt_service = UserPromptService()
 
-@router.post("/", response_model=UserPromptResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=UserPromptResponse, status_code=status.HTTP_201_CREATED)
 def create_user_prompt_api(prompt: UserPromptCreate, db: Session = Depends(get_db)):
     db_prompt = prompt_service.create_user_prompt(db, prompt)    
     return db_prompt

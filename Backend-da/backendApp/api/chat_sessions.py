@@ -13,7 +13,7 @@ from typing import List
 router = APIRouter()
 chat_session_service = ChatSessionService()
 
-@router.post("/", response_model=ChatSessionResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ChatSessionResponse, status_code=status.HTTP_201_CREATED)
 def create_chat_session_api(session: ChatSessionCreate, db: Session = Depends(get_db)):
     db_session = chat_session_service.create_chat_session(db, session)
     if not db_session:

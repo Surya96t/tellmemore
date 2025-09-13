@@ -13,7 +13,7 @@ from typing import List
 router = APIRouter()
 audit_service = AuditService()
 
-@router.post("/", response_model=AuditLogResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=AuditLogResponse, status_code=status.HTTP_201_CREATED)
 def create_audit_log_api(audit_log: AuditLogCreate, db: Session = Depends(get_db)):
     db_audit_log = audit_service.create_audit_log(db, audit_log)
     if not db_audit_log:

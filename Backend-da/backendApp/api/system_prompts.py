@@ -13,7 +13,7 @@ from typing import List
 router = APIRouter()
 prompt_service = SystemPromptService()
 
-@router.post("/", response_model=SystemPromptResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=SystemPromptResponse, status_code=status.HTTP_201_CREATED)
 def create_system_prompt_api(prompt: SystemPromptCreate, db: Session = Depends(get_db)):
     db_prompt = prompt_service.create_system_prompt(db, prompt)
     if not db_prompt:
@@ -21,7 +21,7 @@ def create_system_prompt_api(prompt: SystemPromptCreate, db: Session = Depends(g
     return db_prompt
 
 # Add this new GET endpoint to retrieve all system prompts
-@router.get("/", response_model=List[SystemPromptResponse])
+@router.get("", response_model=List[SystemPromptResponse])
 def get_all_system_prompts_api(db: Session = Depends(get_db)):
     return prompt_service.get_all_system_prompt(db)
 
