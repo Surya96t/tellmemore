@@ -1,16 +1,20 @@
+# TellMeMore/Backend-da/backendApp/api/auth.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import timedelta
+from datetime import timedelta, datetime, date # Import datetime and date
 
 from backendApp.schemas.user_schemas import UserCreate, UserResponse
 from backendApp.schemas.auth_schemas import Token, LoginRequest, TokenData
+from backendApp.schemas.quota_schemas import QuotaBase # Import QuotaBase
 from backendApp.services.auth_service import AuthService
+from backendApp.services.quota_service import QuotaService # Import QuotaService
 from backendApp.dependencies import get_db
 from backendApp.models.postgres_models import User
 
 router = APIRouter()
 auth_service = AuthService()
+quota_service = QuotaService() # Create instance of QuotaService
 
 # OAuth2PasswordBearer for token extraction from headers
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -61,6 +65,17 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    # --- New Quota Reset Logic ---
+    user_quota = quota_service.get_user_quota(db, user.user_id)
+    today = date.today()
+
+    if user_quota and (user_quota.last_reset is None or user_quota.last_reset.date() < today):
+        # Reset the quota for a new day
+        quota_update = QuotaBase(used_today=0, last_reset=datetime.utcnow())
+        quota_service.update_user_quota(db, user.user_id, quota_update)
+        print(f"Daily quota for user {user.email} has been reset.")
+        
     # Define token expiration time (e.g., 30 minutes)
     access_token_expires = timedelta(minutes=auth_service.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth_service.create_access_token(
