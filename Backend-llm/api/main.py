@@ -1,3 +1,4 @@
+# Backend-llm/api/main.py
 from fastapi import FastAPI, HTTPException, Body, Path
 from fastapi.middleware.cors import CORSMiddleware # Import CORSMiddleware
 import os # Import os to read environment variables
@@ -15,7 +16,7 @@ app = FastAPI(
 # --- CORS Configuration ---
 # Get CORS origins from environment variable, defaulting to common development origins
 # This should match the origin of your frontend application (e.g., http://127.0.0.1:8080)
-origins = os.getenv("CORS_ORIGINS", "http://localhost:8080,http://127.0.0.1:8080").split(',')
+origins = os.getenv("CORS_ORIGINS", "http://localhost:8080,http://127.0.0.1:8080,https://frontend-ui-301474384730.us-east4.run.app").split(',')
 
 app.add_middleware(
     CORSMiddleware,

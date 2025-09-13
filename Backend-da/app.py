@@ -44,10 +44,9 @@ CORS_ORIGINS = os.getenv("CORS_ORIGINS", "https://deepoctopus.com")
 origins = [
     "http://localhost:8080",  # Your local frontend development server
     "http://127.0.0.1:8080",
-    "https://deepoctopus.com",
+    "https://frontend-ui-301474384730.us-east4.run.app",  # Production frontend URL
     # Add your production frontend URL here when deployed
-    "CORS_ORIGINS"  # Environment variable for production frontend URL
-    
+    CORS_ORIGINS,  # Environment variable for production frontend URL 
 ]
 
 app.add_middleware(

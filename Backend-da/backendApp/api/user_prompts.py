@@ -22,9 +22,8 @@ def create_user_prompt_api(prompt: UserPromptCreate, db: Session = Depends(get_d
 @router.get("/user/{user_id}", response_model=List[UserPromptResponse])
 def get_user_prompt_api(user_id: uuid.UUID, db: Session = Depends(get_db)):
     prompts = prompt_service.get_user_prompt(db, user_id)
-    if not prompts:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Prompt not found for this user")
-    return prompts
+    # Return empty list if no prompts found instead of 404 error
+    return prompts or []
 
 @router.put("/{prompt_id}", response_model=UserPromptResponse)
 def update_prompt_api(prompt_id: uuid.UUID, prompt_update: UserPromptBase, db: Session = Depends(get_db)):
