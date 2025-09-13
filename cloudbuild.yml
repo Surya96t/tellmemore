@@ -1,5 +1,7 @@
 # This file defines the automated build, push, and deploy pipeline for the 'tellmemore' project.
 # It is executed by Google Cloud Build.
+options:
+  logging: CLOUD_LOGGING_ONLY
 
 steps:
   # ==================================================================================================
