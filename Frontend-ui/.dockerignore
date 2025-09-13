@@ -1,0 +1,12 @@
+# Ignore local environment file
+.env
+
+# Ignore other development files
+.git
+.gitignore
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+README.md
+readme.md
