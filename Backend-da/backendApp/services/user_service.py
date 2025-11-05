@@ -7,12 +7,13 @@ from backendApp.schemas.user_schemas import UserCreate, UserBase
 from backendApp.schemas.quota_schemas import QuotaBase
 import uuid
 
+
 class UserService:
     def create_user(self, db: Session, user: UserCreate):
         db_user = User(
             name=user.name,
             email=user.email,
-            password_hash=user.password, # In real app, hash this password
+            password_hash=user.password,  # In real app, hash this password
             role=user.role
         )
         db.add(db_user)
@@ -44,3 +45,31 @@ class UserService:
             db.commit()
             return True
         return False
+
+    def get_or_create_user_by_clerk_id(self, db: Session, clerk_user_id: str, clerk_email: str = None, clerk_name: str = None, clerk_role: str = "user"):
+        """
+        Get the user by Clerk user ID. If not found, create a new user record using Clerk info.
+        clerk_user_id: The unique user ID from Clerk claims (e.g., sub or id)
+        clerk_email, clerk_name, clerk_role: Optional Clerk profile info for new user creation
+        """
+        user = db.query(User).filter(
+            User.clerk_user_id == clerk_user_id).first()
+        if user:
+            return user
+        # Create new user record if not found
+        user = User(
+            clerk_user_id=clerk_user_id,
+            email=clerk_email,
+            name=clerk_name,
+            role=clerk_role,
+            password_hash=None  # No password, Clerk manages auth
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        # Create a default quota for the new user
+        db_quota = Quota(user_id=user.user_id)
+        db.add(db_quota)
+        db.commit()
+        db.refresh(db_quota)
+        return user

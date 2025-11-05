@@ -14,8 +14,11 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# Python lib folders only (not frontend-next/lib)
+Backend-*/lib/
+Backend-*/lib64/
+Frontend-ui/lib/
+Frontend-ui/lib64/
 parts/
 sdist/
 var/
@@ -172,3 +175,10 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Documentation (markdown files in root and docs folders)
+/*.md
+!README.md
+!LICENSE.md
+docs/*.md
+frontend-next/docs/*.md
