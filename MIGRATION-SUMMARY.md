@@ -8,6 +8,7 @@
 ## 🎯 What We Built
 
 A modern Next.js 16 frontend (`frontend-next`) replacing the legacy FastAPI/Jinja2 UI with:
+
 - ✅ Dual chat interface with OpenAI, Google Gemini, and Groq models
 - ✅ Secure BFF layer (Backend-for-Frontend)
 - ✅ Clerk authentication
@@ -20,6 +21,7 @@ A modern Next.js 16 frontend (`frontend-next`) replacing the legacy FastAPI/Jinj
 ## 📊 Current Status
 
 ### Completed Phases (Nov 1-5, 2025)
+
 1. ✅ **Phase 1:** Project setup & infrastructure
 2. ✅ **Phase 2:** Authentication & layout
 3. ✅ **Phase 3:** Dashboard layout & navigation
@@ -30,6 +32,7 @@ A modern Next.js 16 frontend (`frontend-next`) replacing the legacy FastAPI/Jinj
 8. ✅ **Phase 8:** Polish & optimization (95%)
 
 ### Pending Phases
+
 9. ⏸️ **Phase 9:** Testing & documentation (unit tests, E2E, accessibility)
 10. ⏸️ **Phase 10:** Production deployment
 
@@ -51,17 +54,20 @@ Frontend-next (Next.js 16) → BFF API Routes → Backend-da + Backend-llm
 ## 🤖 Supported Models
 
 ### OpenAI
+
 - `gpt-4o` (GPT-4 Optimized) - **Default**
 - `gpt-4o-mini` (GPT-4 Mini)
 - `gpt-4-turbo` (GPT-4 Turbo)
 - `gpt-3.5-turbo` (GPT-3.5 Turbo)
 
 ### Google Gemini
+
 - `gemini-2.0-flash-exp` (Gemini 2.0 Flash) - **Default**
 - `gemini-1.5-pro` (Gemini 1.5 Pro)
 - `gemini-1.5-flash` (Gemini 1.5 Flash)
 
 ### Groq (LLaMA3)
+
 - `llama-3.3-70b-versatile` (LLaMA 3.3 70B) - **Default**
 - `llama-3.1-70b-versatile` (LLaMA 3.1 70B)
 - `llama-3.1-8b-instant` (LLaMA 3.1 8B)
@@ -71,6 +77,7 @@ Frontend-next (Next.js 16) → BFF API Routes → Backend-da + Backend-llm
 ## 🎨 Key Features
 
 ### Chat Interface
+
 - **Dual chat panels** for side-by-side model comparison
 - **Independent model selection** per chat area
 - **Markdown rendering** with code syntax highlighting
@@ -79,6 +86,7 @@ Frontend-next (Next.js 16) → BFF API Routes → Backend-da + Backend-llm
 - **Error handling** per model (one can fail, other continues)
 
 ### Session Management
+
 - **Create/delete/rename** sessions
 - **Search sessions** by title (Cmd+K)
 - **Load session history** into chat
@@ -86,12 +94,14 @@ Frontend-next (Next.js 16) → BFF API Routes → Backend-da + Backend-llm
 - **Sort by newest** first
 
 ### Prompts Library
+
 - **System prompts** for common use cases
 - **Custom prompts** (create, edit, delete)
 - **Prompt search** and filtering
 - **Use prompts in chat** with one click
 
 ### Quota Management
+
 - **100,000 token limit** per user
 - **Real-time quota display** with progress bar
 - **Token usage tracking** per session
@@ -99,6 +109,7 @@ Frontend-next (Next.js 16) → BFF API Routes → Backend-da + Backend-llm
 - **Block chat when quota exceeded**
 
 ### Settings
+
 - **Profile management** (name, email, avatar)
 - **Theme selection** (light/dark/system)
 - **Default model preferences**
@@ -107,6 +118,7 @@ Frontend-next (Next.js 16) → BFF API Routes → Backend-da + Backend-llm
 - **Account deletion**
 
 ### Keyboard Shortcuts
+
 - `Cmd/Ctrl + K` - Global search (sessions)
 - `Cmd/Ctrl + /` - Toggle command palette
 - `Cmd/Ctrl + B` - Toggle sidebar
@@ -119,21 +131,25 @@ Frontend-next (Next.js 16) → BFF API Routes → Backend-da + Backend-llm
 ## 🔑 Key Decisions
 
 ### State Management
+
 - **React Query:** All backend data (sessions, prompts, quota, messages)
 - **Zustand:** UI preferences only (sidebar state, theme, default models)
 - **No Redux:** Avoided for simplicity
 
 ### Caching
+
 - **Server Components:** `"use cache"` for static data (models list, system prompts)
 - **React Query:** Stale-while-revalidate for dynamic data
 - **Mutations:** Optimistic updates with cache invalidation
 
 ### API Architecture
+
 - **BFF Pattern:** All backend calls via `/api/internal/*` routes
 - **Clerk JWT:** Validated in middleware and API routes
 - **Standardized errors:** Custom error classes and responses
 
 ### Component Patterns
+
 - **Server Components:** Default for pages/layouts
 - **Client Components:** Only for interactivity (useState, onClick, etc.)
 - **Composition:** Avoid prop drilling
@@ -187,12 +203,14 @@ frontend-next/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ and npm/pnpm/yarn
 - Backend-da running on `http://localhost:8000`
 - Backend-llm running on `http://localhost:8001`
 - Clerk account with publishable/secret keys
 
 ### Setup
+
 ```bash
 cd frontend-next
 npm install
@@ -202,6 +220,7 @@ npm run dev
 ```
 
 ### Environment Variables
+
 ```env
 # Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
@@ -217,11 +236,13 @@ NEXT_BACKEND_LLM_URL=http://localhost:8001
 ## 📚 Documentation
 
 ### Migration Planning
+
 - [frontend-next-migration-plan.md](./frontend-next-migration-plan.md) - Full migration roadmap
 - [nextjs-16-migration-rationale.md](./nextjs-16-migration-rationale.md) - Technical decisions
 - [MIGRATION-DOCS-README.md](./MIGRATION-DOCS-README.md) - Docs navigation guide
 
 ### Phase Reports
+
 - [PHASE_4_COMPLETE.md](./frontend-next/docs/PHASE_4_COMPLETE.md) - Chat interface
 - [PHASE_5_COMPLETE.md](./frontend-next/docs/PHASE_5_COMPLETE.md) - Session management
 - [PHASE_6_COMPLETE.md](./frontend-next/docs/PHASE_6_COMPLETE.md) - Prompts & quota
@@ -229,11 +250,13 @@ NEXT_BACKEND_LLM_URL=http://localhost:8001
 - [PHASE_8_COMPLETE.md](./frontend-next/docs/PHASE_8_COMPLETE.md) - Polish & optimization
 
 ### Technical Guides
+
 - [SCROLLING_FIX.md](./frontend-next/docs/SCROLLING_FIX.md) - Chat scrolling fix
 - [SETTINGS_PADDING_UPDATE.md](./frontend-next/docs/SETTINGS_PADDING_UPDATE.md) - Settings UI improvements
 - [API_CLIENT_HOOKS.md](./frontend-next/docs/API_CLIENT_HOOKS.md) - API client usage
 
 ### Backend APIs
+
 - [Backend-da/backend_api_endpoints.md](./Backend-da/backend_api_endpoints.md) - User/session API
 - [Backend-llm/backend_llm_api_endpoints.md](./Backend-llm/backend_llm_api_endpoints.md) - LLM API
 
@@ -242,15 +265,19 @@ NEXT_BACKEND_LLM_URL=http://localhost:8001
 ## 🐛 Common Issues
 
 ### Issue: Chat not scrolling properly
+
 **Solution:** Fixed in Phase 8. See [SCROLLING_FIX.md](./frontend-next/docs/SCROLLING_FIX.md)
 
 ### Issue: Session not loading
+
 **Solution:** Check backend URLs in `.env.local` and verify Clerk authentication
 
 ### Issue: Quota not updating
+
 **Solution:** Ensure Backend-da has `tokens_used` column (run migration script)
 
 ### Issue: Models not appearing
+
 **Solution:** Verify Backend-llm is running and accessible
 
 ---

@@ -31,75 +31,90 @@ Phase 4 delivered a fully functional dual chat interface with independent model 
 ### Components Created
 
 #### 1. `DualChatView.tsx`
+
 **Location:** `components/chat/DualChatView.tsx`
 
 Main container for the dual chat interface:
+
 - Manages two independent `ChatArea` components
 - Handles session state and message history
 - Coordinates chat input (single input sends to both models)
 - Manages streaming responses from multiple models
 
 **Key Features:**
+
 - Side-by-side layout for model comparison
 - Independent model selection per panel
 - Shared message input
 - Error boundaries per chat area
 
 #### 2. `ChatArea.tsx`
+
 **Location:** `components/chat/ChatArea.tsx`
 
 Individual chat panel with model-specific UI:
+
 - Model selector dropdown (OpenAI, Gemini, Groq)
 - Message list with scrolling
 - Loading indicator during streaming
 - Error display for failed requests
 
 **Key Features:**
+
 - Fixed header (model selector)
 - Scrollable message container
 - Fixed footer (input)
 - Flexbox layout for proper scrolling
 
 #### 3. `ChatMessage.tsx`
+
 **Location:** `components/chat/ChatMessage.tsx`
 
 Message bubble component with rich formatting:
+
 - Markdown rendering via `react-markdown`
 - Code syntax highlighting via `prismjs`
 - User vs assistant styling
 - Timestamp display
 
 **Key Features:**
+
 - GitHub-flavored markdown support
 - Code blocks with language detection
 - Copy code button
 - Responsive design
 
 #### 4. `ChatInput.tsx`
+
 **Location:** `components/chat/ChatInput.tsx`
 
 Message input component:
+
 - Textarea with auto-resize
 - Send button with loading state
 - Keyboard shortcuts (Enter to send, Shift+Enter for new line)
 - Character count (optional)
 
 **Key Features:**
+
 - Auto-resize on input
 - Disabled state during sending
 - Loading indicator
 - Accessible (ARIA labels)
 
 #### 5. `ModelSelector.tsx`
+
 **Location:** `components/chat/ModelSelector.tsx`
 
 Model selection dropdown:
+
 - Lists all available models by provider
 - Grouped by provider (OpenAI, Gemini, Groq)
 - Default model selection
 - Model description tooltips
 
 **Key Features:**
+
 - Searchable dropdown
 - Grouped by provider
 - Keyboard navigation
@@ -110,15 +125,18 @@ Model selection dropdown:
 ### API Integration
 
 #### Chat Endpoint
+
 **Route:** `POST /api/internal/chat`
 
 Proxies chat requests to Backend-llm:
+
 - Validates Clerk authentication
 - Forwards request to Backend-llm `/chat/{provider}/{model}`
 - Streams response back to client
 - Handles errors gracefully
 
 **Request:**
+
 ```typescript
 {
   provider: "openai" | "google" | "groq",
@@ -129,6 +147,7 @@ Proxies chat requests to Backend-llm:
 ```
 
 **Response:**
+
 ```typescript
 {
   response: string,
@@ -138,9 +157,11 @@ Proxies chat requests to Backend-llm:
 ```
 
 #### Session Update Endpoint
+
 **Route:** `PATCH /api/internal/sessions/[id]`
 
 Updates session with chat history:
+
 - Saves messages to backend
 - Updates session title (auto-generated from first message)
 - Updates token usage
@@ -150,18 +171,21 @@ Updates session with chat history:
 ### Features Implemented
 
 #### ✅ Dual Chat Interface
+
 - Side-by-side chat panels
 - Independent model selection
 - Synchronized message input
 - Responsive layout (stacks on mobile)
 
 #### ✅ Markdown Rendering
+
 - GitHub-flavored markdown
 - Code blocks with syntax highlighting
 - Tables, lists, links
 - Images and media embeds
 
 #### ✅ Code Syntax Highlighting
+
 - Prism.js integration
 - 50+ language support
 - Line numbers
@@ -169,24 +193,28 @@ Updates session with chat history:
 - Theme support (light/dark)
 
 #### ✅ Streaming Responses
+
 - Real-time streaming from LLM
 - Progressive rendering
 - Loading indicators
 - Cancel/stop functionality
 
 #### ✅ Chat History Persistence
+
 - Save messages to backend
 - Load session history
 - Auto-update session title
 - Token usage tracking
 
 #### ✅ Error Handling
+
 - Per-model error boundaries
 - Graceful degradation (one model fails, other continues)
 - User-friendly error messages
 - Retry functionality
 
 #### ✅ Loading States
+
 - Streaming indicator (pulsing dots)
 - Model-specific loading
 - Disabled input during streaming
@@ -197,22 +225,26 @@ Updates session with chat history:
 ## Technical Highlights
 
 ### State Management
+
 - **React Query:** Chat history, session data
 - **Local State:** Current messages, streaming state
 - **Zustand:** Default model preferences
 
 ### Caching Strategy
+
 - **React Query:** Cache chat history per session
 - **Optimistic Updates:** Add user message immediately
 - **Invalidation:** Refresh on send/error
 
 ### Performance Optimizations
+
 - **Virtual scrolling:** For long chat histories (future)
 - **Debounced input:** Prevent excessive re-renders
 - **Memoization:** Markdown rendering, message components
 - **Code splitting:** Prism.js loaded on demand
 
 ### Accessibility
+
 - **Keyboard navigation:** Tab, Enter, Esc
 - **ARIA labels:** All interactive elements
 - **Focus management:** Auto-focus input after send
@@ -223,17 +255,20 @@ Updates session with chat history:
 ## Models Supported
 
 ### OpenAI
+
 - `gpt-4o` - GPT-4 Optimized (Default)
 - `gpt-4o-mini` - GPT-4 Mini
 - `gpt-4-turbo` - GPT-4 Turbo
 - `gpt-3.5-turbo` - GPT-3.5 Turbo
 
 ### Google Gemini
+
 - `gemini-2.0-flash-exp` - Gemini 2.0 Flash (Default)
 - `gemini-1.5-pro` - Gemini 1.5 Pro
 - `gemini-1.5-flash` - Gemini 1.5 Flash
 
 ### Groq (LLaMA3)
+
 - `llama-3.3-70b-versatile` - LLaMA 3.3 70B (Default)
 - `llama-3.1-70b-versatile` - LLaMA 3.1 70B
 - `llama-3.1-8b-instant` - LLaMA 3.1 8B
@@ -243,6 +278,7 @@ Updates session with chat history:
 ## Testing Performed
 
 ### Manual Testing
+
 - ✅ Send messages to all models
 - ✅ Verify markdown rendering
 - ✅ Test code syntax highlighting
@@ -253,6 +289,7 @@ Updates session with chat history:
 - ✅ Test responsive layout (mobile/desktop)
 
 ### Edge Cases
+
 - ✅ Empty messages (blocked)
 - ✅ Very long messages (handled)
 - ✅ Rapid consecutive sends (queued)
@@ -264,12 +301,14 @@ Updates session with chat history:
 ## Known Issues & Limitations
 
 ### Minor Issues (Not Blocking)
+
 1. **Scrolling:** Fixed in Phase 8 (flexbox layout)
 2. **Cancel streaming:** Not yet implemented (future enhancement)
 3. **Message editing:** Not yet implemented (future enhancement)
 4. **Message deletion:** Not yet implemented (future enhancement)
 
 ### Future Enhancements
+
 1. Voice input/output
 2. Image/file uploads
 3. Multi-turn conversations with context
@@ -281,6 +320,7 @@ Updates session with chat history:
 ## Files Changed
 
 ### New Files
+
 - `components/chat/DualChatView.tsx`
 - `components/chat/ChatArea.tsx`
 - `components/chat/ChatMessage.tsx`
@@ -290,6 +330,7 @@ Updates session with chat history:
 - `lib/markdown-renderer.ts`
 
 ### Modified Files
+
 - `app/(root)/dashboard/page.tsx` - Integrated DualChatView
 - `lib/api-client.ts` - Added chat API methods
 - `hooks/use-chat.ts` - Added chat hooks
@@ -301,6 +342,7 @@ Updates session with chat history:
 ✅ **Phase 4 Complete!** Moving to Phase 5: Session Management & Search
 
 ### Phase 5 Objectives
+
 1. Implement session CRUD operations
 2. Build session search with dropdown
 3. Add session sorting (newest first)
