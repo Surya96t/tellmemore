@@ -26,6 +26,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ## Architecture Overview
 
 ### Service Layer
+
 ```
 ┌─────────────────┐
 │  User Browser   │
@@ -49,6 +50,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ```
 
 ### Tech Stack
+
 - **Frontend Framework:** Next.js 16 (App Router, React Server Components)
 - **UI Components:** shadcn/ui (Radix UI + Tailwind CSS)
 - **Authentication:** Clerk (JWT-based)
@@ -62,19 +64,22 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ## Migration Phases
 
 ### ✅ Phase 1: Project Setup & Infrastructure (Nov 1, 2025)
+
 **Duration:** 1 day  
 **Status:** Complete
 
 #### Tasks Completed
+
 - [x] Initialize Next.js 16 project with TypeScript
 - [x] Configure Tailwind CSS and shadcn/ui
 - [x] Set up ESLint, Prettier, and TypeScript strict mode
 - [x] Configure environment variables (.env.local)
 - [x] Integrate Clerk authentication
 - [x] Create basic folder structure (app/, components/, lib/, hooks/)
-- [x] Set up BFF API routes (/api/internal/*)
+- [x] Set up BFF API routes (/api/internal/\*)
 
 #### Deliverables
+
 - ✅ `frontend-next/` project initialized
 - ✅ `components.json` for shadcn/ui configuration
 - ✅ `.env.local.example` with required environment variables
@@ -83,10 +88,12 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ---
 
 ### ✅ Phase 2: Authentication & Layout (Nov 1-2, 2025)
+
 **Duration:** 1 day  
 **Status:** Complete
 
 #### Tasks Completed
+
 - [x] Implement Clerk sign-in/sign-up pages
 - [x] Create protected dashboard layout with sidebar
 - [x] Build responsive navigation with mobile support
@@ -95,6 +102,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - [x] Set up authentication middleware for API routes
 
 #### Deliverables
+
 - ✅ `/sign-in` and `/sign-up` pages
 - ✅ `/dashboard` layout with collapsible sidebar
 - ✅ Theme toggle functionality
@@ -103,10 +111,12 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ---
 
 ### ✅ Phase 3: Dashboard Layout & Navigation (Nov 2, 2025)
+
 **Duration:** 1 day  
 **Status:** Complete
 
 #### Tasks Completed
+
 - [x] Build main dashboard header with breadcrumbs
 - [x] Create collapsible sidebar with session list
 - [x] Implement chat session sidebar (SessionsSidebar component)
@@ -116,6 +126,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - [x] Implement keyboard shortcuts (Cmd+/, Cmd+B)
 
 #### Deliverables
+
 - ✅ `DashboardHeader` component with breadcrumb navigation
 - ✅ `SessionsSidebar` with session list and actions
 - ✅ `SettingsSidebar` with tabbed interface
@@ -127,10 +138,12 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ---
 
 ### ✅ Phase 4: Chat Interface (Nov 3, 2025)
+
 **Duration:** 1 day  
 **Status:** Complete
 
 #### Tasks Completed
+
 - [x] Build dual chat interface (ChatArea × 2)
 - [x] Implement model selection per chat area
 - [x] Create message components with markdown rendering
@@ -142,6 +155,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - [x] Create session title auto-update
 
 #### Features
+
 - ✅ Side-by-side chat with independent model selection
 - ✅ Markdown rendering with code blocks
 - ✅ Real-time streaming responses
@@ -150,6 +164,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - ✅ Loading indicators per chat area
 
 #### Components Created
+
 - `DualChatView` - Main container for dual chat
 - `ChatArea` - Individual chat panel
 - `ChatMessage` - Message bubble with markdown
@@ -161,10 +176,12 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ---
 
 ### ✅ Phase 5: Session Management & Search (Nov 4, 2025)
+
 **Duration:** 1 day  
 **Status:** Complete
 
 #### Tasks Completed
+
 - [x] Implement session CRUD operations (create, delete, rename, load)
 - [x] Build session search with dropdown results
 - [x] Add session sorting (newest first)
@@ -175,6 +192,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - [x] Fix session routing and state management
 
 #### Features
+
 - ✅ Create new sessions with auto-generated titles
 - ✅ Delete sessions with confirmation dialog
 - ✅ Rename sessions inline
@@ -184,6 +202,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - ✅ Keyboard shortcuts for search (Cmd+K)
 
 #### API Endpoints Created
+
 - `POST /api/internal/sessions` - Create session
 - `GET /api/internal/sessions` - List sessions
 - `GET /api/internal/sessions/[id]` - Get session details
@@ -196,10 +215,12 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ---
 
 ### ✅ Phase 6: Prompts Library & Quota Management (Nov 4, 2025)
+
 **Duration:** 1 day  
 **Status:** Complete
 
 #### Tasks Completed
+
 - [x] Build prompts library UI (PromptCard, PromptModal)
 - [x] Implement prompt CRUD operations
 - [x] Add prompt search and filtering
@@ -210,6 +231,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - [x] Create prompt usage in chat
 
 #### Features
+
 - ✅ Save/load custom prompts
 - ✅ System prompts library
 - ✅ Prompt search by title/content
@@ -219,6 +241,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - ✅ Block chat when quota exceeded
 
 #### API Endpoints Created
+
 - `GET /api/internal/prompts` - List prompts
 - `POST /api/internal/prompts` - Create prompt
 - `PATCH /api/internal/prompts/[id]` - Update prompt
@@ -231,10 +254,12 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ---
 
 ### ✅ Phase 7: Settings & User Profile (Nov 4, 2025)
+
 **Duration:** 1 day  
 **Status:** Complete
 
 #### Tasks Completed
+
 - [x] Build settings page with tabbed interface
 - [x] Create profile settings tab
 - [x] Implement appearance settings (theme, font size)
@@ -245,6 +270,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - [x] Implement user profile update
 
 #### Features
+
 - ✅ Profile management (name, email, avatar)
 - ✅ Theme selection (light/dark/system)
 - ✅ Default model preferences
@@ -253,6 +279,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - ✅ Account deletion
 
 #### Components Created
+
 - `SettingsTabs` - Main settings container
 - `ProfileTab` - User profile settings
 - `AppearanceTab` - Theme and display settings
@@ -265,10 +292,12 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ---
 
 ### ✅ Phase 8: Polish & Optimization (Nov 5, 2025)
+
 **Duration:** 1 day  
 **Status:** 95% Complete
 
 #### Tasks Completed
+
 - [x] Fix scrolling in chat interface (flexbox layout)
 - [x] Add padding to settings components (p-6)
 - [x] Implement error boundaries for all major components
@@ -283,6 +312,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - [x] Add confirmation dialogs for destructive actions
 
 #### Features
+
 - ✅ Smooth scrolling in chat areas
 - ✅ Consistent padding across UI
 - ✅ Graceful error handling with fallback UI
@@ -293,11 +323,13 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - ✅ Toast notifications for success/error
 
 #### Pending (5%)
+
 - ⏸️ Comprehensive accessibility audit
 - ⏸️ Performance profiling and optimization
 - ⏸️ Final UI polish (spacing, colors, typography)
 
-**Documentation:** 
+**Documentation:**
+
 - `frontend-next/docs/PHASE_8_COMPLETE.md`
 - `frontend-next/docs/SCROLLING_FIX.md`
 - `frontend-next/docs/SETTINGS_PADDING_UPDATE.md`
@@ -305,10 +337,12 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ---
 
 ### ⏸️ Phase 9: Testing & Documentation (Nov 6-7, 2025)
+
 **Duration:** 2 days  
 **Status:** Pending
 
 #### Tasks
+
 - [ ] Write unit tests for API routes (Jest/Vitest)
 - [ ] Write integration tests for chat flow
 - [ ] Add E2E tests (Playwright)
@@ -319,6 +353,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - [ ] Create troubleshooting guide
 
 #### Deliverables
+
 - [ ] Test suite with >80% coverage
 - [ ] E2E test suite for critical flows
 - [ ] Accessibility compliance report
@@ -328,10 +363,12 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ---
 
 ### ⏸️ Phase 10: Production Deployment (Nov 8, 2025)
+
 **Duration:** 1 day  
 **Status:** Pending
 
 #### Tasks
+
 - [ ] Set up Vercel/AWS deployment
 - [ ] Configure production environment variables
 - [ ] Set up CI/CD pipeline (GitHub Actions)
@@ -342,6 +379,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - [ ] Deploy to production
 
 #### Deliverables
+
 - [ ] Production environment live
 - [ ] CI/CD pipeline configured
 - [ ] Monitoring and alerting active
@@ -352,23 +390,27 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ## Key Technical Decisions
 
 ### State Management
+
 - **Server State:** React Query for all backend data (sessions, prompts, quota, user)
 - **UI State:** Zustand for local preferences (sidebar collapsed, theme, default models)
 - **Form State:** React Hook Form for complex forms
 - **No Redux:** Avoided for simplicity and modern patterns
 
 ### Caching Strategy
+
 - **Server Components:** Use Next.js 16 `"use cache"` directive for static data (models list, system prompts)
 - **React Query:** Cache dynamic data with stale-while-revalidate pattern
 - **Mutations:** Optimistic updates with automatic cache invalidation
 
 ### API Architecture
+
 - **BFF Pattern:** All backend calls proxied through `/api/internal/*` routes
 - **No Direct Backend Access:** Client never calls Backend-da or Backend-llm directly
 - **Authentication:** Clerk JWT validated in middleware and API routes
 - **Error Handling:** Standardized error responses with custom error classes
 
 ### Component Patterns
+
 - **Server Components:** Default for all pages and layouts
 - **Client Components:** Only when needed (interactivity, hooks, browser APIs)
 - **Composition:** Prefer composition over prop drilling
@@ -379,6 +421,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 ## Migration Metrics
 
 ### Code Statistics (as of Nov 5, 2025)
+
 - **Total Components:** 45+
 - **API Routes:** 25+
 - **Pages:** 8
@@ -386,6 +429,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - **Dependencies:** 30+ npm packages
 
 ### Feature Completeness
+
 - ✅ **Authentication:** 100%
 - ✅ **Chat Interface:** 100%
 - ✅ **Session Management:** 100%
@@ -397,6 +441,7 @@ This document outlines the complete migration from the legacy FastAPI/Jinja2 fro
 - ⏸️ **Documentation:** 60% (Phase 9)
 
 ### Performance Targets
+
 - ✅ **First Contentful Paint:** <1.5s
 - ✅ **Time to Interactive:** <2.5s
 - ✅ **Lighthouse Score:** 90+ (Performance, Accessibility, Best Practices, SEO)
@@ -423,18 +468,21 @@ These features are documented in `GITHUB_ISSUES_TODO.md` and will be implemented
 ## Next Steps
 
 ### Immediate (Nov 6, 2025)
+
 1. Begin Phase 9: Testing & Documentation
 2. Write unit tests for all API routes
 3. Add E2E tests for critical user flows
 4. Perform accessibility audit and fix issues
 
 ### Short-term (Nov 7-8, 2025)
+
 1. Complete user documentation
 2. Prepare production deployment
 3. Set up monitoring and CI/CD
 4. Conduct final QA review
 
 ### Long-term (Post-Launch)
+
 1. Implement deferred features from backlog
 2. Gather user feedback and iterate
 3. Optimize performance based on real-world usage
