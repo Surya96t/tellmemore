@@ -72,8 +72,8 @@ export const useUiStore = create<UiState>()(
         })),
 
       // Default model preferences
-      defaultLeftModel: "gpt-4o",
-      defaultRightModel: "gemini-2.0-flash-exp",
+      defaultLeftModel: "gpt-5",
+      defaultRightModel: "gemini-2.5-flash",
 
       setDefaultLeftModel: (modelId: string) =>
         set(() => ({
