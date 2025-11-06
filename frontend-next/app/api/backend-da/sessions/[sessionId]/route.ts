@@ -63,7 +63,7 @@ async function getOrCreateBackendUser(): Promise<{ user_id: string }> {
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
-        'X-Internal-API-Key': 'dev-internal-secret-key-12345',
+        'X-Internal-API-Key': env.server.internalApiKey,
         'Content-Type': 'application/json',
       },
     });
@@ -120,7 +120,7 @@ export async function GET(
       {
         method: 'GET',
         headers: {
-          'X-Internal-API-Key': 'dev-internal-secret-key-12345',
+          'X-Internal-API-Key': env.server.internalApiKey,
           'Content-Type': 'application/json',
         },
       }
@@ -237,7 +237,7 @@ export async function PUT(
       {
         method: 'GET',
         headers: {
-          'X-Internal-API-Key': 'dev-internal-secret-key-12345',
+          'X-Internal-API-Key': env.server.internalApiKey,
           'Content-Type': 'application/json',
         },
       }
@@ -274,7 +274,7 @@ export async function PUT(
       {
         method: 'PUT',
         headers: {
-          'X-Internal-API-Key': 'dev-internal-secret-key-12345',
+          'X-Internal-API-Key': env.server.internalApiKey,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ title }),
@@ -346,7 +346,7 @@ export async function DELETE(
       {
         method: 'GET',
         headers: {
-          'X-Internal-API-Key': 'dev-internal-secret-key-12345',
+          'X-Internal-API-Key': env.server.internalApiKey,
           'Content-Type': 'application/json',
         },
       }
@@ -383,7 +383,7 @@ export async function DELETE(
       {
         method: 'DELETE',
         headers: {
-          'X-Internal-API-Key': 'dev-internal-secret-key-12345',
+          'X-Internal-API-Key': env.server.internalApiKey,
           'Content-Type': 'application/json',
         },
       }

@@ -69,7 +69,7 @@ export async function GET(): Promise<NextResponse<ChatSessionResponse[] | ErrorR
       {
         method: 'GET',
         headers: {
-          'X-Internal-API-Key': 'dev-internal-secret-key-12345',
+          'X-Internal-API-Key': env.server.internalApiKey,
           'Content-Type': 'application/json',
         },
         cache: 'no-store', // Always fetch fresh data
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatSessi
       {
         method: 'POST',
         headers: {
-          'X-Internal-API-Key': 'dev-internal-secret-key-12345',
+          'X-Internal-API-Key': env.server.internalApiKey,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(createPayload),
@@ -251,7 +251,7 @@ async function getOrCreateBackendUser(): Promise<{ user_id: string; email: strin
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
-        'X-Internal-API-Key': 'dev-internal-secret-key-12345',
+        'X-Internal-API-Key': env.server.internalApiKey,
         'Content-Type': 'application/json',
       },
     });

@@ -175,10 +175,3 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-
-# Documentation (markdown files in root and docs folders)
-/*.md
-!README.md
-!LICENSE.md
-docs/*.md
-frontend-next/docs/*.md
