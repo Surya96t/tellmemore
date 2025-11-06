@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Parent with h-screen */
+.parent {
+  height: 100vh;
+  display: flex;
+}
+
+/* Child with h-full */
+.child {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  background: lightblue;
+}
+
+/* Header */
+.header {
+  flex-shrink: 0;
+  background: lightcoral;
+  padding: 20px;
+}
+
+/* Content wrapper */
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: lightgreen;
+}
+
+/* Grid container */
+.grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  overflow: hidden;
+  padding: 16px;
+  min-height: 0; /* CRITICAL FIX */
+}
+
+/* Chat cards */
+.chat-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* Messages area */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Input */
+.input {
+  flex-shrink: 0;
+  border-top: 1px solid #ccc;
+  padding: 16px;
+  background: white;
+}
+</style>
+</head>
+<body>
+
+<div class="parent">
+  <div class="child">
+    <div class="header">FIXED HEADER</div>
+    
+    <div class="content-wrapper">
+      <div class="grid">
+        <!-- Left Chat -->
+        <div class="chat-card">
+          <div class="messages">
+            <div style="background: #f0f0f0; margin-bottom: 10px; padding: 10px; border-radius: 4px;" id="left-msgs"></div>
+          </div>
+        </div>
+        
+        <!-- Right Chat -->
+        <div class="chat-card">
+          <div class="messages">
+            <div style="background: #f0f0f0; margin-bottom: 10px; padding: 10px; border-radius: 4px;" id="right-msgs"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="input">FIXED INPUT AT BOTTOM</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Add 100 messages to each side
+for (let i = 1; i <= 100; i++) {
+  document.getElementById('left-msgs').innerHTML += `<p>Left Message ${i}</p>`;
+  document.getElementById('right-msgs').innerHTML += `<p>Right Message ${i}</p>`;
+}
+</script>
+
+</body>
+</html>

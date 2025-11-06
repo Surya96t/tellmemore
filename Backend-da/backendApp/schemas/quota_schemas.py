@@ -6,10 +6,12 @@ from typing import Optional
 import uuid
 from datetime import datetime
 
+
 class QuotaBase(BaseModel):
-    daily_limit: int = 10000
+    daily_limit: int = 100000
     used_today: int = 0
     last_reset: Optional[datetime] = None
+
 
 class QuotaResponse(QuotaBase):
     user_id: uuid.UUID

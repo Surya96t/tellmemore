@@ -6,12 +6,13 @@ from backendApp.models.postgres_models import ChatSession, User
 from backendApp.schemas.chat_session_schemas import ChatSessionCreate, ChatSessionBase
 import uuid
 
+
 class ChatSessionService:
     def create_chat_session(self, db: Session, session: ChatSessionCreate):
         # Ensure user exists before creating session
         user = db.query(User).filter(User.user_id == session.user_id).first()
         if not user:
-            return None # Or raise a specific error to be handled by API layer
+            return None  # Or raise a specific error to be handled by API layer
         db_session = ChatSession(**session.dict())
         db.add(db_session)
         db.commit()
@@ -22,7 +23,8 @@ class ChatSessionService:
         return db.query(ChatSession).filter(ChatSession.session_id == session_id).first()
 
     def get_user_chat_sessions(self, db: Session, user_id: uuid.UUID):
-        return db.query(ChatSession).filter(ChatSession.user_id == user_id).all()
+        """Retrieve all chat sessions for a user, sorted by created_at descending (newest first)."""
+        return db.query(ChatSession).filter(ChatSession.user_id == user_id).order_by(ChatSession.created_at.desc()).all()
 
     def update_chat_session(self, db: Session, session_id: uuid.UUID, session_update: ChatSessionBase):
         session = self.get_chat_session(db, session_id)

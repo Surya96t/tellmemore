@@ -1,11 +1,12 @@
 
-fastapi==0.116.0
-uvicorn==0.30.1
-SQLAlchemy==2.0.30
-psycopg2-binary==2.9.9
-pydantic==2.7.4
-python-dotenv==1.0.0
-passlib[bcrypt]==1.7.4
-python-jose[cryptography]==3.3.0
-python-multipart==0.0.20
+fastapi
+uvicorn
+SQLAlchemy
+psycopg2-binary
+pydantic
+python-dotenv
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
 pydantic[email]
+clerk-backend-api

@@ -4,44 +4,35 @@ from datetime import datetime, timezone
 from typing import Optional, List, Any
 import uuid
 
+
 class ModelProvider(str, Enum):
     OPENAI = "openai"
     GOOGLE = "google"
     GROQ = "groq"
+
 
 class ModelName(str, Enum):
     """
     Enum representing supported language models across multiple providers.
 
     Models are categorized by provider:
-    - OpenAI: GPT-4 series
-    - Google: Gemini models
-    - Groq Cloud: LLaMA3 variants
-
-    This enum enables strong validation and consistency when referring to models
-    throughout the application.
-
-    Attributes:
-        GPT_4O: OpenAI's GPT-4o model
-        GPT_4O_MINI: Hypothetical variant of GPT-4o (e.g., smaller version)
-        GEMINI_1_5_PRO_LATEST: Latest Google Gemini 1.5 Pro model
-        GEMINI_1_5_FLASH_LATEST: Latest Google Gemini 1.5 Flash model
-        GEMINI_1_0_PRO: Google Gemini 1.0 Pro model
-        LLAMA3_8B_8192: Groq's hosted LLaMA3 8B model
-        LLAMA3_70B_8192: Groq's hosted LLaMA3 70B model
+    - OpenAI: GPT-5 series
+    - Google: Gemini 2.5 models
+    - Groq Cloud: LLaMA3.1/3.3 variants
     """
     # OpenAI Models
-    GPT_4O = "gpt-4o"
-    GPT_4O_MINI = "gpt-4o-mini"
+    GPT_5 = "gpt-5"
+    GPT_5_MINI = "gpt-5-mini"
+    GPT_NANO = "gpt-nano"
 
-    # Google Models
-    GEMINI_1_5_PRO_LATEST = "gemini-1.5-pro-latest"
-    GEMINI_1_5_FLASH_LATEST = "gemini-1.5-flash-latest"
-    GEMINI_1_0_PRO = "gemini-1.0-pro"
+    # Google Gemini Models (latest only)
+    GEMINI_2_5_PRO = "gemini-2.5-pro"
+    GEMINI_2_5_FLASH = "gemini-2.5-flash"
+    GEMINI_2_5_FLASH_LITE = "gemini-2.5-flash-lite"
 
-    # Groq Cloud Models (still defined, but not used in every comparison)
-    LLAMA3_8B_8192 = "llama3-8b-8192"
-    LLAMA3_70B_8192 = "llama3-70b-8192"
+    # Groq Cloud Models
+    LLAMA_3_1_8B_INSTANT = "llama-3.1-8b-instant"
+    LLAMA_3_3_70B_VERSATILE = "llama-3.3-70b-versatile"
 
     def get_provider(self) -> ModelProvider:
         """
@@ -62,9 +53,10 @@ class ModelName(str, Enum):
             return ModelProvider.OPENAI
         elif value_lower.startswith("gemini"):
             return ModelProvider.GOOGLE
-        elif "llama3" in value_lower: # Simplified for the Groq models we have
+        elif "llama" in value_lower:  # Simplified for the Groq models we have
             return ModelProvider.GROQ
-        raise ValueError(f"Could not determine provider for model: {self.value}")
+        raise ValueError(
+            f"Could not determine provider for model: {self.value}")
 
 
 # Helper model for chat history input in the API
@@ -76,10 +68,12 @@ class ChatMessageAPI(BaseModel):
     @classmethod
     def role_must_be_valid(cls, v: str) -> str:
         role_lower = v.lower()
-        if role_lower not in ["user", "assistant", "system", "human", "ai"]: # Allow more for flexibility
-            raise ValueError("Role must be one of 'user', 'assistant', 'system', 'human', 'ai'")
+        # Allow more for flexibility
+        if role_lower not in ["user", "assistant", "system", "human", "ai"]:
+            raise ValueError(
+                "Role must be one of 'user', 'assistant', 'system', 'human', 'ai'")
         return role_lower
-    
+
 # class QueryInputForComparison(BaseModel):
 #     """
 #     Request model for submitting a query to the LLM comparison endpoint.
@@ -95,25 +89,33 @@ class ChatMessageAPI(BaseModel):
 #     """
 #     question: str
 #     session_id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()))
-    
+
 #     @field_validator('session_id', mode='before') # (B)
 #     @classmethod
 #     def set_session_id_if_none(cls, v):
 #         return v or str(uuid.uuid4())
 
 # Request body for individual LLM chat endpoints
+
+
 class SingleModelChatRequest(BaseModel):
     question: str = Field(..., examples=["What is the capital of France?"])
-    session_id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()))
+    session_id: Optional[str] = Field(
+        default_factory=lambda: str(uuid.uuid4()))
     chat_history: Optional[List[ChatMessageAPI]] = Field(
         default_factory=list,
         examples=[[{"role": "user", "content": "My name is Bob."}]]
+    )
+    system_prompts: Optional[List[str]] = Field(
+        default_factory=list,
+        description="List of system prompts to prepend to the chat history for context"
     )
 
     @field_validator('session_id', mode='before')
     @classmethod
     def set_session_id_if_none(cls, v: Optional[str]) -> str:
         return v or str(uuid.uuid4())
+
 
 class QueryResponse(BaseModel):
     """
@@ -130,6 +132,7 @@ class QueryResponse(BaseModel):
         request_timestamp (datetime): The timestamp when the query was sent to the model.
         response_timestamp (datetime): The timestamp when the response was received from the model.
         latency_ms (float): The total time taken to receive the model's response, in milliseconds.
+        usage (Optional[Any]): Token usage information from the LLM provider (format varies by provider).
     """
     answer: Optional[str] = None
     raw_response: Optional[Any] = None
@@ -140,10 +143,12 @@ class QueryResponse(BaseModel):
     request_timestamp: datetime
     response_timestamp: datetime
     latency_ms: float
-    
+    usage: Optional[Any] = None  # Token usage info (varies by provider)
+
     @field_validator('request_timestamp', 'response_timestamp', mode='before')
     @classmethod
-    def ensure_datetime_is_aware(cls, v: datetime) -> datetime: # Use `any` for `v` if it might be a string from JSON
+    # Use `any` for `v` if it might be a string from JSON
+    def ensure_datetime_is_aware(cls, v: datetime) -> datetime:
         """
         Validates that the datetime field is timezone-aware.
         This runs AFTER Pydantic has converted the input to a datetime object.
@@ -151,7 +156,7 @@ class QueryResponse(BaseModel):
         if v.tzinfo is None:
             raise ValueError("Datetime must be timezone-aware (UTC).")
         return v.astimezone(timezone.utc)
-    
+
 
 class ComparisonResponse(BaseModel):
     """
@@ -170,4 +175,5 @@ class ComparisonResponse(BaseModel):
     original_question: str
     session_id: str
     responses: List[QueryResponse]
-    comparison_timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    comparison_timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))

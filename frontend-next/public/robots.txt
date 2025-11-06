@@ -1,0 +1,14 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /sign-in/
+Disallow: /sign-up/
+Disallow: /settings/
+
+# Allow indexing of landing page and marketing content
+Allow: /$
+
+# Sitemap location
+Sitemap: https://tellmemore.app/sitemap.xml
