@@ -1,0 +1,39 @@
+# Backend-llm Python Dependencies
+# Last Updated: January 30, 2025
+# Python 3.11+
+
+# Core FastAPI
+fastapi==0.118.0
+uvicorn==0.37.0
+starlette==0.48.0
+
+# Configuration
+python-dotenv==1.1.1
+
+# LLM Provider SDKs
+openai==2.1.0
+google-generativeai  # Add specific version when available
+groq  # Add specific version when available
+
+# Data Validation
+pydantic==2.11.9
+pydantic_core==2.33.2
+
+# HTTP
+httpx==0.28.1
+httpcore==1.0.9
+h11==0.16.0
+
+# Utilities
+typing_extensions==4.15.0
+annotated-types==0.7.0
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+
+# Server
+uvloop==0.21.0
+httptools==0.6.4
+watchfiles==1.1.0
+websockets==15.0.1
