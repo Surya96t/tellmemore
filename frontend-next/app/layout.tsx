@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { NetworkStatusProvider } from "@/lib/providers/network-status-provider";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next"
 import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = Geist({
@@ -144,6 +145,7 @@ export default function RootLayout({
               <QueryProvider>
                 <NetworkStatusProvider>
                   {children}
+                  <Analytics />
                   <Toaster />
                 </NetworkStatusProvider>
               </QueryProvider>

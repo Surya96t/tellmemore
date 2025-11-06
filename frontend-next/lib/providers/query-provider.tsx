@@ -35,8 +35,8 @@ function makeQueryClient() {
         staleTime: 60 * 1000,
         // Default garbage collection time: 5 minutes
         gcTime: 5 * 60 * 1000,
-        // Refetch on window focus in production
-        refetchOnWindowFocus: process.env.NODE_ENV === 'production',
+        // Disable refetch on window focus to prevent unwanted refreshes
+        refetchOnWindowFocus: false,
         // Retry failed requests once
         retry: 1,
       },

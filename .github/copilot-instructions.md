@@ -67,14 +67,22 @@ TellMeMore is a modular, multi-service application for interacting with Large La
 - Legacy FastAPI frontend remains for reference; all new development is in Frontend-next.
 - **Backend-llm now uses official provider SDKs (OpenAI, Google Gemini, Groq) for all LLM operations. Each provider has its own modular service (e.g., `openai_service.py`, `google_gemini_service.py`, `groq_service.py`). This improves reliability, maintainability, and access to the latest features.**
 
+## Documentation Structure
+
+**Project documentation is organized by component:**
+
+- **Project-wide:** [/docs/README.md](../docs/README.md) - Migration plans, Clerk integration, architecture
+- **Frontend Next.js:** [/frontend-next/docs/](../frontend-next/docs/) - Chat UI fixes, API integration, phase reports
+- **Backend Data API:** [/Backend-da/backend_api_endpoints.md](../Backend-da/backend_api_endpoints.md)
+- **Backend LLM API:** [/Backend-llm/backend_llm_api_endpoints.md](../Backend-llm/backend_llm_api_endpoints.md)
+
 ## Frontend Migration Documentation
 
 **For all Frontend-next development, follow these migration documents:**
 
-- **Primary Guide:** [frontend-next-migration-plan.md](../frontend-next-migration-plan.md) - Complete implementation roadmap, phases, and timelines
-- **Technical Rationale:** [nextjs-16-migration-rationale.md](../nextjs-16-migration-rationale.md) - Architecture decisions, caching strategies, state management patterns
-- **Quick Reference:** [MIGRATION-SUMMARY.md](../MIGRATION-SUMMARY.md) - Key decisions, model list, common questions
-- **Documentation Index:** [MIGRATION-DOCS-README.md](../MIGRATION-DOCS-README.md) - How to navigate all migration docs
+- **Primary Guide:** [docs/frontend-next-migration-plan.md](../docs/frontend-next-migration-plan.md) - Complete implementation roadmap, phases, and timelines
+- **Quick Reference:** [docs/MIGRATION-SUMMARY.md](../docs/MIGRATION-SUMMARY.md) - Key decisions, model list, common questions
+- **Documentation Index:** [docs/README.md](../docs/README.md) - How to navigate all documentation
 
 **Phases 4-8 Complete ✅ (November 3-5, 2025):**
 
@@ -83,7 +91,6 @@ TellMeMore is a modular, multi-service application for interacting with Large La
 - **Phase 6 Report:** [frontend-next/docs/PHASE_6_COMPLETE.md](../frontend-next/docs/PHASE_6_COMPLETE.md) - Prompts library and quota management
 - **Phase 7 Report:** [frontend-next/docs/PHASE_7_COMPLETE.md](../frontend-next/docs/PHASE_7_COMPLETE.md) - Settings and user profile
 - **Phase 8 Report:** [frontend-next/docs/PHASE_8_COMPLETE.md](../frontend-next/docs/PHASE_8_COMPLETE.md) - Polish & optimization (95% complete)
-- **Deferred Features:** [GITHUB_ISSUES_TODO.md](../GITHUB_ISSUES_TODO.md) - 20 issues to create after migration
 
 **What's Working:**
 
@@ -107,6 +114,25 @@ TellMeMore is a modular, multi-service application for interacting with Large La
 - Caching: "use cache" for Server Components (system prompts, models list), React Query for dynamic data
 - Server Actions: Use for all mutations (create session, save prompt, update quota)
 - No direct client-to-backend API calls - all requests go through BFF layer
+
+**Chat UI Optimistic Updates ✅ (January 30, 2025):**
+
+The chat interface now features a production-ready optimistic UI with instant message display, smooth streaming responses, and zero flicker. All cache updates are handled manually to avoid race conditions and ensure data consistency.
+
+- **Documentation:** [frontend-next/docs/CHAT_UI_FIXES_README.md](../frontend-next/docs/CHAT_UI_FIXES_README.md) - Complete index of all chat UI fixes
+- **Summary:** [frontend-next/docs/CHAT_UI_COMPLETE_SUMMARY.md](../frontend-next/docs/CHAT_UI_COMPLETE_SUMMARY.md) - Full journey from broken to perfect
+- **Implementation:** Manual cache updates via `queryClient.setQueryData()`, no automatic invalidations
+- **Key Fix:** `refetchOnMount: true` (default) + `staleTime: Infinity` enables cache observation without network requests
+- **Result:** Instant user messages, smooth streaming, persistent responses, zero flicker
+
+**Critical Patterns for Chat UI:**
+
+- ✅ Manual cache updates only (no `invalidateQueries` for prompts)
+- ✅ Preserve `llm_responses` when replacing temp IDs with backend data
+- ✅ Sort messages by timestamp before rendering
+- ✅ Use `staleTime: Infinity` to prevent auto-refetch, but keep `refetchOnMount: true` for cache observation
+- ❌ Never invalidate chat history cache (causes flicker)
+- ❌ Never use automatic optimistic updates (causes duplicates)
 
 ## Migration Plan
 

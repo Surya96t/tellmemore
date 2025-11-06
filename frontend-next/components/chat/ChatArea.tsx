@@ -5,7 +5,8 @@ import { ChatMessage } from "./ChatMessage";
 import { ModelSelector } from "./ModelSelector";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Message {
@@ -31,6 +32,7 @@ interface ChatAreaProps {
 export function ChatArea({
   model,
   messages,
+  isLoading,
   error,
   onModelChange,
   excludeModel,
@@ -43,7 +45,7 @@ export function ChatArea({
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isLoading]); // Also scroll when loading state changes
 
   return (
     <div className={cn(
@@ -75,17 +77,44 @@ export function ChatArea({
             </div>
           </div>
         ) : (
-          messages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              role={message.role}
-              content={message.content}
-              timestamp={message.timestamp}
-              model={message.model}
-              isLoading={message.isLoading}
-              error={message.error}
-            />
-          ))
+          <>
+            {messages.map((message) => (
+              <ChatMessage
+                key={message.id}
+                role={message.role}
+                content={message.content}
+                timestamp={message.timestamp}
+                model={message.model}
+                isLoading={message.isLoading}
+                error={message.error}
+              />
+            ))}
+            
+            {/* Show loading indicator if waiting for assistant response */}
+            {isLoading && messages[messages.length - 1]?.role === 'user' && (
+              <div className="flex w-full gap-3 px-2 py-2">
+                <div className="flex max-w-[80%] flex-col gap-2 items-start">
+                  {/* Header: Model badge + loading indicator */}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Badge variant="outline" className="text-xs">
+                      {model}
+                    </Badge>
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <span>Thinking...</span>
+                  </div>
+                  
+                  {/* Loading bubble */}
+                  <div className="rounded-lg bg-muted px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <div className="h-2 w-2 rounded-full bg-muted-foreground/40 animate-pulse" />
+                      <div className="h-2 w-2 rounded-full bg-muted-foreground/40 animate-pulse delay-75" style={{ animationDelay: '75ms' }} />
+                      <div className="h-2 w-2 rounded-full bg-muted-foreground/40 animate-pulse delay-150" style={{ animationDelay: '150ms' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
