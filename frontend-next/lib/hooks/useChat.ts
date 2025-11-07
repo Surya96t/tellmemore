@@ -20,41 +20,22 @@
 
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
-import type { ChatRequest, ChatResponse } from '../api/types';
-import { promptKeys } from './usePrompts';
-import { quotaKeys } from './useQuota';
+import type { ChatRequest } from '../api/types';
 
 /**
  * Send a chat message to an LLM
  * 
- * This automatically:
- * - Sends the message to the selected model
- * - Saves the prompt and response to chat history
- * - Updates the user's quota
- * - Invalidates relevant queries
+ * Note: This ONLY sends the message to the LLM.
+ * It does NOT update chat history or quota.
+ * 
+ * Cache updates are handled manually in DualChatView.tsx to avoid flicker.
  */
 export function useSendChat() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: ChatRequest) => apiClient.chat.send(data),
-    onSuccess: (
-      _data: ChatResponse,
-      variables: ChatRequest
-    ) => {
-      // Invalidate chat history for this session
-      if (variables.session_id) {
-        queryClient.invalidateQueries({
-          queryKey: promptKeys.list(variables.session_id),
-        });
-      }
-
-      // Invalidate quota (it was updated by the backend)
-      queryClient.invalidateQueries({
-        queryKey: quotaKeys.all,
-      });
-    },
+    // No onSuccess - cache updates handled manually in DualChatView
+    // to prevent flicker from unnecessary refetches
   });
 }

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { ChatArea, ChatAreaSkeleton } from "./ChatArea";
 import { ChatInput } from "./ChatInput";
 import { useChatStore } from "@/lib/stores/chatStore";
 import { usePromptsStore } from "@/lib/stores/promptsStore";
-import { useChatHistory, useSavePrompt } from "@/lib/hooks/usePrompts";
+import { useChatHistory, useSavePrompt, promptKeys } from "@/lib/hooks/usePrompts";
 import { useSendChat } from "@/lib/hooks/useChat";
 import { useUpdateSession, useSession } from "@/lib/hooks/useSessions";
 import { useSystemPrompts, useQuota } from "@/lib/hooks";
@@ -42,6 +43,7 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
   const [hasShownWarning, setHasShownWarning] = useState(false);
 
   // React Query hooks
+  const queryClient = useQueryClient();
   const sendChat = useSendChat();
   const savePrompt = useSavePrompt();
   const updateSession = useUpdateSession();
@@ -98,11 +100,16 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
       return { leftMessages: [], rightMessages: [] };
     }
 
+    // Sort prompts by timestamp (oldest first) to ensure chronological order
+    const sortedPrompts = [...prompts].sort((a, b) => {
+      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+    });
+
     // Build message arrays from prompts
     const leftMsgs: Message[] = [];
     const rightMsgs: Message[] = [];
 
-    prompts.forEach((prompt: Prompt) => {
+    sortedPrompts.forEach((prompt: Prompt) => {
       // Add user message to both chats
       const userMsg: Message = {
         id: `user-${prompt.prompt_id}`,
@@ -165,6 +172,23 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
       return;
     }
 
+    // STEP 1: IMMEDIATELY add user message to cache (optimistic update)
+    // This makes the message appear instantly before LLM responses arrive
+    const queryKey = promptKeys.list(sessionId);
+    const optimisticMessage: Prompt = {
+      prompt_id: 'temp-' + Date.now(),
+      user_id: 'temp',
+      session_id: sessionId,
+      prompt_text: message,
+      llm_responses: [], // Empty initially - will be filled when responses arrive
+      timestamp: new Date().toISOString(),
+    };
+
+    console.log('💬 Adding optimistic user message to cache');
+    queryClient.setQueryData<Prompt[]>(queryKey, (old: Prompt[] | undefined) => {
+      return [...(old || []), optimisticMessage];
+    });
+
     setIsLoadingLeft(true);
     setIsLoadingRight(true);
     setErrorLeft(undefined);
@@ -185,7 +209,7 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
       const selectedSystemPrompts = getSelectedSystemPromptTexts(systemPrompts || []);
       console.log('📝 Selected system prompts:', selectedSystemPrompts);
 
-      // Send to both models in parallel (with system prompts context)
+      // STEP 2: Send to both models in parallel (background)
       const [leftResponse, rightResponse] = await Promise.allSettled([
         sendChat.mutateAsync({
           question: message,
@@ -290,9 +314,28 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
         totalTokens,
       });
 
-      // Save the prompt and both responses to Backend-da (with token count)
-      // This will automatically trigger React Query to refetch chat history
-      // and Backend-da will auto-update the user's quota
+      // STEP 3: Update optimistic message with real responses
+      // First, update the cache manually (replace empty llm_responses with real data)
+      console.log('🔄 Updating optimistic message with real responses');
+      queryClient.setQueryData<Prompt[]>(queryKey, (old: Prompt[] | undefined) => {
+        if (!old || old.length === 0) return old;
+        
+        // Find and update the optimistic message (last message with matching text)
+        const lastMessage = old[old.length - 1];
+        if (lastMessage && lastMessage.prompt_text === message) {
+          return [
+            ...old.slice(0, -1),
+            {
+              ...lastMessage,
+              llm_responses: responses, // Update with real responses
+            },
+          ];
+        }
+        return old;
+      });
+
+      // STEP 4: Save to backend (this will trigger onSuccess and refetch)
+      // We skip the onMutate hook by updating cache manually above
       await savePrompt.mutateAsync({
         session_id: sessionId,
         prompt_text: message,
@@ -306,6 +349,18 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
       const errorMsg = error instanceof Error ? error.message : "Failed to send message";
       setErrorLeft(errorMsg);
       setErrorRight(errorMsg);
+      
+      // Rollback: Remove optimistic message on error
+      console.log('❌ Error occurred, rolling back optimistic update');
+      queryClient.setQueryData<Prompt[]>(queryKey, (old: Prompt[] | undefined) => {
+        if (!old || old.length === 0) return old;
+        // Remove the last message if it matches our optimistic message
+        const lastMessage = old[old.length - 1];
+        if (lastMessage && lastMessage.prompt_text === message && lastMessage.prompt_id.startsWith('temp-')) {
+          return old.slice(0, -1);
+        }
+        return old;
+      });
     } finally {
       setIsLoadingLeft(false);
       setIsLoadingRight(false);
