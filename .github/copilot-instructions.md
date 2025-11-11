@@ -53,6 +53,17 @@ TellMeMore is a modular, multi-service application for interacting with Large La
 - Handle errors gracefully and log exceptions with context.
 - **For Backend-llm, all new provider logic must be implemented in dedicated service modules. Legacy LangChain code is deprecated and present only for reference.**
 
+## Documentation Guidelines
+
+- **Always ask before creating new markdown (.md) files** - Get user confirmation before generating documentation
+- **All new documentation must go in the appropriate docs folder:**
+  - Project-wide docs → `/docs/`
+  - Frontend-next docs → `/frontend-next/docs/`
+  - Backend-da docs → `/Backend-da/`
+  - Backend-llm docs → `/Backend-llm/`
+- **Never create markdown files in the project root** - Keep the root directory clean
+- Update the README.md or index files in the docs folders when adding new documentation
+
 ## Documentation & Communication
 
 - Keep documentation up to date as goals and architecture evolve.
