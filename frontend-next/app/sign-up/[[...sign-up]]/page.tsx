@@ -4,19 +4,15 @@ import { SignUp } from "@clerk/nextjs";
 
 export default function Page() {
   return (
-    <div className="flex justify-center items-center h-screen bg-background">
-      <SignUp 
-        appearance={{
-          elements: {
-            rootBox: "mx-auto",
-            card: "bg-card shadow-lg",
-          },
-        }}
-        fallbackRedirectUrl="/dashboard"
-        signInFallbackRedirectUrl="/dashboard"
-        forceRedirectUrl="/dashboard"
-        signInForceRedirectUrl="/dashboard"
-      />
+    <div className="flex justify-center items-center min-h-screen bg-linear-to-br from-background via-background to-muted/20 p-4">
+      <div className="w-full max-w-md">
+        <SignUp 
+          fallbackRedirectUrl="/dashboard"
+          signInFallbackRedirectUrl="/dashboard"
+          forceRedirectUrl="/dashboard"
+          signInForceRedirectUrl="/dashboard"
+        />
+      </div>
     </div>
   );
 }

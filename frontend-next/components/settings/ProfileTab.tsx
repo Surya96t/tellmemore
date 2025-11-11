@@ -18,6 +18,8 @@ export function ProfileTab() {
         </CardHeader>
         <CardContent className="overflow-hidden">
           <UserProfile
+            routing="path"
+            path="/settings"
             appearance={{
               baseTheme: resolvedTheme === "dark" ? undefined : undefined,
               elements: {

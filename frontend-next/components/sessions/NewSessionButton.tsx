@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useCreateSession } from "@/lib/hooks";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function NewSessionButton() {
+  const router = useRouter();
   const { mutate: createSession, isPending } = useCreateSession();
 
   const handleCreateSession = () => {
@@ -18,6 +20,8 @@ export function NewSessionButton() {
           toast.success("Session created", {
             description: `New session "${session.title}" created successfully.`,
           });
+          // Navigate to the new session
+          router.push(`/dashboard?session=${session.session_id}`);
         },
         onError: () => {
           toast.error("Error", {

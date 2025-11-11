@@ -189,12 +189,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
     const chatResponse: ChatResponse = await llmResponse.json();
 
     // DEBUG: Log usage data
-    console.log('🔍 Backend-llm response usage:', {
-      model,
-      provider,
-      usage: chatResponse.usage,
-      hasUsage: !!chatResponse.usage,
-    });
+    // console.log('🔍 Backend-llm response usage:', {
+    //   model,
+    //   provider,
+    //   usage: chatResponse.usage,
+    //   hasUsage: !!chatResponse.usage,
+    // });
 
     return NextResponse.json(chatResponse, { status: 200 });
   } catch (error) {

@@ -197,13 +197,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<PromptRes
     };
 
     // DEBUG: Log payload being sent to Backend-da
-    console.log('💾 Saving prompt to Backend-da:', {
-      session_id,
-      prompt_text: prompt_text.slice(0, 50),
-      llm_responses_count: llm_responses.length,
-      llm_responses: llm_responses.map((r: string) => r.slice(0, 50)),
-      tokens_used: createPayload.tokens_used,
-    });
+    // console.log('💾 Saving prompt to Backend-da:', {
+    //   session_id,
+    //   prompt_text: prompt_text.slice(0, 50),
+    //   llm_responses_count: llm_responses.length,
+    //   llm_responses: llm_responses.map((r: string) => r.slice(0, 50)),
+    //   tokens_used: createPayload.tokens_used,
+    // });
 
     // Save prompt to Backend-da internal endpoint
     const response = await fetch(
@@ -231,11 +231,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<PromptRes
     const prompt: PromptResponse = await response.json();
 
     // DEBUG: Log saved prompt
-    console.log('✅ Prompt saved to Backend-da:', {
-      prompt_id: prompt.prompt_id,
-      llm_responses_count: prompt.llm_responses?.length || 0,
-      llm_responses: prompt.llm_responses,
-    });
+    // console.log('✅ Prompt saved to Backend-da:', {
+    //   prompt_id: prompt.prompt_id,
+    //   llm_responses_count: prompt.llm_responses?.length || 0,
+    //   llm_responses: prompt.llm_responses,
+    // });
 
     return NextResponse.json(prompt, { status: 201 });
   } catch (error) {
@@ -283,11 +283,11 @@ async function getOrCreateBackendUser(): Promise<{ user_id: string; email: strin
       ? `${clerkUser.firstName} ${clerkUser.lastName}`
       : clerkUser.firstName || clerkUser.username || 'Unknown User';
 
-    console.log('🔑 Calling Backend-da internal API for Clerk user:', {
-      userId,
-      email,
-      name,
-    });
+    // console.log('🔑 Calling Backend-da internal API for Clerk user:', {
+    //   userId,
+    //   email,
+    //   name,
+    // });
 
     // Call Backend-da internal endpoint with API key and Clerk profile data
     // Backend-da will use real email/name when creating new users
@@ -314,7 +314,7 @@ async function getOrCreateBackendUser(): Promise<{ user_id: string; email: strin
     }
 
     const user = await response.json();
-    console.log('✅ User retrieved/created:', { user_id: user.user_id, email: user.email });
+    // console.log('✅ User retrieved/created:', { user_id: user.user_id, email: user.email });
     
     return { user_id: user.user_id, email: user.email };
   } catch (error) {

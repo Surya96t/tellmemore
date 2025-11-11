@@ -236,11 +236,11 @@ async function getOrCreateBackendUser(): Promise<{ user_id: string; email: strin
       ? `${clerkUser.firstName} ${clerkUser.lastName}`
       : clerkUser.firstName || clerkUser.username || 'Unknown User';
 
-    console.log('🔑 Calling Backend-da internal API for Clerk user:', {
-      userId,
-      email,
-      name,
-    });
+    // console.log('🔑 Calling Backend-da internal API for Clerk user:', {
+    //   userId,
+    //   email,
+    //   name,
+    // });
 
     // Call Backend-da internal endpoint with API key and Clerk profile data
     // Backend-da will use real email/name when creating new users
@@ -267,7 +267,7 @@ async function getOrCreateBackendUser(): Promise<{ user_id: string; email: strin
     }
 
     const user = await response.json();
-    console.log('✅ User retrieved/created:', { user_id: user.user_id, email: user.email });
+    // console.log('✅ User retrieved/created:', { user_id: user.user_id, email: user.email });
     
     return { user_id: user.user_id, email: user.email };
   } catch (error) {

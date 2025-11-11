@@ -69,17 +69,17 @@ export function useSavePrompt() {
       console.error('❌ Failed to save prompt:', _err);
     },
     onSuccess: (data: Prompt, variables: CreatePromptRequest) => {
-      console.log('✅ Prompt saved successfully', {
-        promptId: data.prompt_id,
-        responsesCount: data.llm_responses?.length,
-        responses: data.llm_responses,
-      });
-      
+      // console.log('✅ Prompt saved successfully', {
+      //   promptId: data.prompt_id,
+      //   responsesCount: data.llm_responses?.length,
+      //   responses: data.llm_responses,
+      // });
+
       // Update cache with real backend data (replace temp ID with real ID)
       const queryKey = promptKeys.list(variables.session_id);
       const updatedData = queryClient.setQueryData<Prompt[]>(queryKey, (old: Prompt[] | undefined) => {
         if (!old || old.length === 0) {
-          console.log('📝 Cache empty, adding backend data');
+          // console.log('📝 Cache empty, adding backend data');
           return [data];
         }
         
@@ -90,12 +90,12 @@ export function useSavePrompt() {
         
         if (tempIndex !== -1) {
           const tempMessage = old[tempIndex];
-          console.log('🔄 Replacing temp message with backend data:', {
-            tempId: tempMessage.prompt_id,
-            realId: data.prompt_id,
-            tempResponses: tempMessage.llm_responses?.length || 0,
-            backendResponses: data.llm_responses?.length || 0,
-          });
+          // console.log('🔄 Replacing temp message with backend data:', {
+          //   tempId: tempMessage.prompt_id,
+          //   realId: data.prompt_id,
+          //   tempResponses: tempMessage.llm_responses?.length || 0,
+          //   backendResponses: data.llm_responses?.length || 0,
+          // });
           
           // CRITICAL FIX: Always use backend data for responses (it's the source of truth)
           // The streaming updates were just optimistic - backend has the final, complete responses
@@ -103,11 +103,11 @@ export function useSavePrompt() {
             ...data, // Use complete backend data (ID, timestamp, responses)
           };
           
-          console.log('✅ Final message to cache:', {
-            promptId: finalMessage.prompt_id,
-            responsesCount: finalMessage.llm_responses?.length,
-            responses: finalMessage.llm_responses,
-          });
+          //console.log('✅ Final message to cache:', {
+          //  promptId: finalMessage.prompt_id,
+          //  responsesCount: finalMessage.llm_responses?.length,
+          //  responses: finalMessage.llm_responses,
+          //});
           
           // Replace temp message with final message
           return [
@@ -118,15 +118,15 @@ export function useSavePrompt() {
         }
         
         // If no temp message found, just append (shouldn't happen)
-        console.warn('⚠️ No temp message found, appending backend data');
+        // console.warn('⚠️ No temp message found, appending backend data');
         return [...old, data];
       });
       
-      console.log('🔍 Cache after update:', {
-        queryKey,
-        dataCount: updatedData?.length,
-        lastMessage: updatedData?.[updatedData.length - 1],
-      });
+      //console.log('🔍 Cache after update:', {
+      //  queryKey,
+      //  dataCount: updatedData?.length,
+      //  lastMessage: updatedData?.[updatedData.length - 1],
+      //});
       
       // CRITICAL: Invalidate quota cache so QuotaCard refetches updated quota
       // Backend-da auto-updates quota when saving prompts with tokens_used

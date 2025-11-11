@@ -121,9 +121,9 @@ export async function fetchWithRetry(
 
       // Wait before retry (exponential backoff)
       const delayMs = opts.retryDelay! * Math.pow(2, attempt);
-      console.log(
-        `Request failed (${response.status}), retrying in ${delayMs}ms... (Attempt ${attempt + 1}/${opts.maxRetries})`
-      );
+      // console.log(
+      //   `Request failed (${response.status}), retrying in ${delayMs}ms... (Attempt ${attempt + 1}/${opts.maxRetries})`
+      // );
       await delay(delayMs);
     } catch (error: unknown) {
       lastError = error as Error;
@@ -131,9 +131,9 @@ export async function fetchWithRetry(
 
       // If AbortError (timeout), retry
       if (error instanceof Error && error.name === "AbortError") {
-        console.log(
-          `Request timeout, retrying... (Attempt ${attempt + 1}/${opts.maxRetries})`
-        );
+        // console.log(
+        //   `Request timeout, retrying... (Attempt ${attempt + 1}/${opts.maxRetries})`
+        // );
 
         if (attempt < opts.maxRetries!) {
           const delayMs = opts.retryDelay! * Math.pow(2, attempt);
@@ -147,9 +147,9 @@ export async function fetchWithRetry(
         error instanceof Error &&
         (error.name === "TypeError" || error.message.includes("fetch"))
       ) {
-        console.log(
-          `Network error, retrying... (Attempt ${attempt + 1}/${opts.maxRetries})`
-        );
+        // console.log(
+        //   `Network error, retrying... (Attempt ${attempt + 1}/${opts.maxRetries})`
+        // );
 
         if (attempt < opts.maxRetries!) {
           const delayMs = opts.retryDelay! * Math.pow(2, attempt);
