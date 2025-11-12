@@ -20,11 +20,11 @@ interface BentoCard {
  * Grid uses explicit positioning (col-start/row-start) to place each card
  * 
  * Layout on Desktop (lg: breakpoint):
- * Index 0: INSIGHTS     - Top Left    (cols 1-2, rows 1-2) ■■
- * Index 1: SPEED        - Middle Left (cols 1-2, row 3)    ■■
- * Index 2: PRODUCTIVITY - Right Side  (cols 3-4, rows 1-3) ■■■
- * Index 3: SECURITY     - Bottom Left (cols 1-2, rows 4-5) ■■
- * Index 4: COMING SOON  - Bottom Right(cols 3-4, rows 4-5) ■■
+ * Index 0: INSIGHTS     - Top Left       (col 1, row 1) - Small square
+ * Index 1: SPEED        - Top Middle-Left(col 2, row 1) - Small square, next to Insights
+ * Index 2: PRODUCTIVITY - Right Side     (cols 3-4, rows 1-4) - Tall rectangle
+ * Index 3: SECURITY     - Left Side      (cols 1-2, rows 2-4) - Tall rectangle, starts row 2
+ * Index 4: COMING SOON  - Bottom Right   (cols 3-4, row 5) - Medium rectangle
  */
 const cardData: BentoCard[] = [
   // Index 0: Top Left
@@ -93,25 +93,27 @@ export default function BentoShowcase() {
             Tablet (640px - 1024px): 2 columns - cards flow in pairs
             Desktop (> 1024px): 4 columns with custom spans:
             
-            ┌──────────────┬──────────────┐
-            │   INSIGHTS   │              │  Row 1
-            │  (2col×2row) │              │
-            ├──────────────┤ PRODUCTIVITY │  Row 2
-            │    SPEED     │  (2col×3row) │
-            │  (2col×1row) │              │
-            ├──────────────┤              │  Row 3
-            │   SECURITY   ├──────────────┤
-            │  (2col×2row) │ COMING SOON  │  Row 4
-            │              │  (2col×2row) │
-            └──────────────┴──────────────┘  Row 5
+            Column:    1           2           3           4
+            ┌──────────┬──────────┬──────────────────────┐
+            │ INSIGHTS │  SPEED   │                      │  Row 1
+            │ (1col×1) │ (1col×1) │   PRODUCTIVITY       │
+            ├──────────┴──────────┤   (2col×4row)        │  Row 2
+            │                     │                      │
+            │    SECURITY         │                      │  Row 3
+            │    (2col×4row)      │                      │
+            │                     │                      │  Row 4
+            │                     ├──────────────────────┤
+            │                     │  COMING SOON         │  Row 5
+            └─────────────────────┴──────────────────────┘
+                                  │  (2col×1row)         │
         */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto auto-rows-[minmax(140px,auto)]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
           {cardData.map((card, index) => {
             // Base card styling - shared by all cards
             const cardContent = (
               <div
                 className={`
-                  relative group
+                  relative group h-full
                   flex flex-col justify-between
                   p-8 rounded-2xl
                   border border-white/20 dark:border-white/10
@@ -122,9 +124,6 @@ export default function BentoShowcase() {
                   hover:shadow-lg hover:shadow-purple-500/20
                   overflow-hidden
                 `}
-                style={{
-                  minHeight: index === 2 ? '500px' : index === 1 ? '200px' : '280px',
-                }}
               >
                 {/* Shooting Stars Background */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
@@ -456,29 +455,29 @@ export default function BentoShowcase() {
             // IMPORTANT: We need explicit grid-row-start to control vertical placement
             const gridPositions = {
               0: {
-                // INSIGHTS - Top Left (Medium Square)
-                className: "lg:col-span-2 lg:row-span-2 lg:col-start-1 lg:row-start-1",
-                description: "Insights card: Columns 1-2, Rows 1-2",
+                // INSIGHTS - Top Left (Small Square)
+                className: "lg:col-span-1 lg:row-span-1 lg:col-start-1 lg:row-start-1",
+                description: "Insights card: Column 1, Row 1",
               },
               1: {
-                // SPEED - Middle Left (Short Rectangle) 
-                className: "lg:col-span-2 lg:row-span-1 lg:col-start-1 lg:row-start-3",
-                description: "Speed card: Columns 1-2, Row 3",
+                // SPEED - Top Middle-Left (Small Square) - Next to Insights
+                className: "lg:col-span-1 lg:row-span-1 lg:col-start-2 lg:row-start-1",
+                description: "Speed card: Column 2, Row 1",
               },
               2: {
-                // PRODUCTIVITY - Right Side (Tall Rectangle)
-                className: "lg:col-span-2 lg:row-span-3 lg:col-start-3 lg:row-start-1",
-                description: "Productivity card: Columns 3-4, Rows 1-3",
+                // PRODUCTIVITY - Right Side (Tall Rectangle - 4 rows)
+                className: "lg:col-span-2 lg:row-span-4 lg:col-start-3 lg:row-start-1",
+                description: "Productivity card: Columns 3-4, Rows 1-4",
               },
               3: {
-                // SECURITY - Bottom Left (Medium Square)
-                className: "lg:col-span-2 lg:row-span-2 lg:col-start-1 lg:row-start-4",
-                description: "Security card: Columns 1-2, Rows 4-5",
+                // SECURITY - Left Side (Tall Rectangle - 4 rows, starts at row 2)
+                className: "lg:col-span-2 lg:row-span-4 lg:col-start-1 lg:row-start-2",
+                description: "Security card: Columns 1-2, Rows 2-5",
               },
               4: {
-                // COMING SOON - Bottom Right (Medium Square)
-                className: "lg:col-span-2 lg:row-span-2 lg:col-start-3 lg:row-start-4",
-                description: "Coming Soon card: Columns 3-4, Rows 4-5",
+                // COMING SOON - Bottom Right (Medium Rectangle)
+                className: "lg:col-span-2 lg:row-span-1 lg:col-start-3 lg:row-start-5",
+                description: "Coming Soon card: Columns 3-4, Row 5",
               },
             };
 
@@ -487,7 +486,7 @@ export default function BentoShowcase() {
             return (
               <div 
                 key={index} 
-                className={position?.className || ""}
+                className={`${position?.className || ""} h-full`}
                 title={position?.description}
               >
                 {cardContent}
