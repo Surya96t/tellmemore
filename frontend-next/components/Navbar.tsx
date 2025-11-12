@@ -4,7 +4,7 @@ import { ThemeToggle } from "./ThemeToggle";
 
 export default function Navbar() {
   return (
-    <nav className="w-full flex items-center justify-between py-6 px-8 bg-transparent backdrop-blur-xs">
+    <nav className="sticky top-0 z-50 w-full flex items-center justify-between py-6 px-8 dark:bg-black/95 backdrop-blur-lg dark:border-zinc-800/50">
       {/* Left: Logo and Name */}
       <div className="flex items-center gap-3">
         <Image src="/favicon.ico" alt="TellMeMore Logo" width={32} height={32} className="drop-shadow dark:brightness-110" />

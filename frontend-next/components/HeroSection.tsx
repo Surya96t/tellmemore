@@ -12,7 +12,7 @@ export default function HeroSection() {
     "Experience the power of multiple AI minds working on your questions. TellMeMore lets you compare responses from leading AI models side-by-side, helping you make better decisions faster.";
   return (
     <div className="relative w-full mx-auto my-10 flex max-w-7xl flex-col items-center justify-center">
-      <div className="px-4 py-10 md:py-20">
+      <div className="px-4 py-5 md:py-5">
         <h1 className="relative z-10 mx-auto max-w-4xl text-center font-bold text-zinc-900 dark:text-white">
           <span className="block text-4xl md:text-6xl lg:text-7xl mb-2 tracking-tight">
             {headline[0].split(" ").map((word, index) => (

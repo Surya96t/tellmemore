@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
+import { ShootingStars } from './ui/shooting-stars';
 
 export interface BentoCardProps {
   color?: string;
@@ -31,37 +32,37 @@ const MOBILE_BREAKPOINT = 768;
 
 const cardData: BentoCardProps[] = [
   {
-    color: '#000000',
+    color: 'transparent',
     title: 'Better Decision Making',
     description: 'Make informed choices with multiple AI perspectives',
     label: 'Insights'
   },
   {
-    color: '#000000',
+    color: 'transparent',
     title: 'Real-time Responses',
     description: 'Lightning-fast answers in under 2 seconds',
     label: 'Speed'
   },
   {
-    color: '#000000',
+    color: 'transparent',
     title: 'Time Efficiency',
     description: 'One interface for all AI perspectives',
     label: 'Productivity'
   },
   {
-    color: '#000000',
+    color: 'transparent',
     title: 'Secure & Private',
     description: 'Bank-level 256-bit encryption',
     label: 'Security'
   },
   {
-    color: '#000000',
+    color: 'transparent',
     title: 'Quality Assurance',
     description: 'Compare and choose the best responses',
     label: 'Accuracy'
   },
   {
-    color: '#000000',
+    color: 'transparent',
     title: 'Always Updated',
     description: 'Latest AI model versions',
     label: 'Innovation'
@@ -543,12 +544,22 @@ const MagicBento: React.FC<BentoProps> = ({
             --glow-intensity: 0;
             --glow-radius: 200px;
             --glow-color: ${glowColor};
-            --border-color: #392e4e;
-            --background-dark: #060010;
-            --white: hsl(0, 0%, 100%);
+            --border-color: rgba(229, 231, 235, 0.2);
+            --background-light: rgba(255, 255, 255, 0.5);
+            --background-dark: rgba(0, 0, 0, 0.5);
+            --text-primary: rgb(24, 24, 27);
+            --text-secondary: rgb(63, 63, 70);
             --purple-primary: rgba(132, 0, 255, 1);
             --purple-glow: rgba(132, 0, 255, 0.2);
             --purple-border: rgba(132, 0, 255, 0.8);
+          }
+          
+          @media (prefers-color-scheme: dark) {
+            .bento-section {
+              --border-color: rgba(39, 39, 42, 0.5);
+              --text-primary: rgb(250, 250, 250);
+              --text-secondary: rgb(161, 161, 170);
+            }
           }
           
           .card-responsive {
@@ -675,14 +686,11 @@ const MagicBento: React.FC<BentoProps> = ({
       <BentoCardGrid gridRef={gridRef}>
         <div className="card-responsive grid gap-4">
           {cardData.map((card, index) => {
-            const baseClassName = `card flex flex-col justify-between relative aspect-[4/3] min-h-[280px] w-full max-w-full p-8 rounded-[20px] border border-solid font-light overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] ${
+            const baseClassName = `card flex flex-col justify-between relative aspect-[4/3] min-h-[280px] w-full max-w-full p-8 rounded-2xl border border-white/20 dark:border-white/10 font-light overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-0.5 bg-white/50 dark:bg-black/50 backdrop-blur-xl ${
               enableBorderGlow ? 'card--border-glow' : ''
             }`;
 
             const cardStyle = {
-              backgroundColor: card.color || 'var(--background-dark)',
-              borderColor: 'var(--border-color)',
-              color: 'var(--white)',
               '--glow-x': '50%',
               '--glow-y': '50%',
               '--glow-intensity': '0',
@@ -702,15 +710,20 @@ const MagicBento: React.FC<BentoProps> = ({
                   clickEffect={clickEffect}
                   enableMagnetism={enableMagnetism}
                 >
-                  <div className="card__header flex justify-between gap-3 relative text-white">
-                    <span className="card__label text-lg font-medium">{card.label}</span>
+                  {/* Shooting stars background animation */}
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <ShootingStars />
                   </div>
-                  <div className="card__content flex flex-col relative text-white">
-                    <h3 className={`card__title font-semibold text-xl m-0 mb-2 ${textAutoHide ? 'text-clamp-1' : ''}`}>
+                  
+                  <div className="card__header flex justify-between gap-3 relative">
+                    <span className="card__label text-lg font-medium text-zinc-900 dark:text-white">{card.label}</span>
+                  </div>
+                  <div className="card__content flex flex-col relative">
+                    <h3 className={`card__title font-semibold text-xl m-0 mb-2 text-zinc-900 dark:text-white ${textAutoHide ? 'text-clamp-1' : ''}`}>
                       {card.title}
                     </h3>
                     <p
-                      className={`card__description text-sm leading-6 opacity-90 ${textAutoHide ? 'text-clamp-2' : ''}`}
+                      className={`card__description text-sm leading-6 text-zinc-600 dark:text-zinc-400 ${textAutoHide ? 'text-clamp-2' : ''}`}
                     >
                       {card.description}
                     </p>
@@ -834,14 +847,19 @@ const MagicBento: React.FC<BentoProps> = ({
                   el.addEventListener('click', handleClick);
                 }}
               >
-                <div className="card__header flex justify-between gap-3 relative text-white">
-                  <span className="card__label text-lg font-medium">{card.label}</span>
+                {/* Shooting stars background animation */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <ShootingStars />
                 </div>
-                <div className="card__content flex flex-col relative text-white">
-                  <h3 className={`card__title font-semibold text-xl m-0 mb-2 ${textAutoHide ? 'text-clamp-1' : ''}`}>
+                
+                <div className="card__header flex justify-between gap-3 relative">
+                  <span className="card__label text-lg font-medium text-zinc-900 dark:text-white">{card.label}</span>
+                </div>
+                <div className="card__content flex flex-col relative">
+                  <h3 className={`card__title font-semibold text-xl m-0 mb-2 text-zinc-900 dark:text-white ${textAutoHide ? 'text-clamp-1' : ''}`}>
                     {card.title}
                   </h3>
-                  <p className={`card__description text-sm leading-6 opacity-90 ${textAutoHide ? 'text-clamp-2' : ''}`}>
+                  <p className={`card__description text-sm leading-6 text-zinc-600 dark:text-zinc-400 ${textAutoHide ? 'text-clamp-2' : ''}`}>
                     {card.description}
                   </p>
                 </div>
