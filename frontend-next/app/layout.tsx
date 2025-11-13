@@ -98,66 +98,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: undefined, // Let ThemeProvider control the theme
-        variables: {
-          colorPrimary: "#0ea5e9", // Sky blue
-          colorBackground: "#18181b", // Lighter dark background
-          colorInputBackground: "#27272a", // Lighter input background
-          colorInputText: "#ffffff", // White text
-          colorText: "#ffffff", // White text
-          colorTextSecondary: "#a1a1aa", // Gray text
-          colorDanger: "#ef4444", // Red
-          colorSuccess: "#10b981", // Green
-          colorWarning: "#f59e0b", // Orange
-          colorNeutral: "#71717a", // Lighter gray
-          fontFamily: "var(--font-geist-sans)",
-          borderRadius: "0.75rem",
-        },
-        elements: {
-          // Root and card styling
-          rootBox: "w-full",
-          card: "bg-[#18181b] text-white border-[3px] border-[#52525b] shadow-2xl rounded-xl",
-          
-          // Header styling
-          headerTitle: "text-white text-2xl font-bold",
-          headerSubtitle: "text-[#d4d4d8] text-sm",
-          
-          // Social buttons
-          socialButtonsBlockButton: "bg-[#27272a] border-[2px] border-[#71717a] hover:bg-[#3f3f46] hover:border-[#0ea5e9] transition-all text-white font-medium",
-          socialButtonsBlockButtonText: "text-white font-medium",
-          
-          // Dividers
-          dividerLine: "bg-[#71717a]",
-          dividerText: "text-[#d4d4d8]",
-          
-          // Form fields
-          formFieldLabel: "text-white font-medium text-sm mb-2",
-          formFieldInput: "bg-[#27272a] border-[2px] border-[#71717a] focus:border-[#0ea5e9] text-white rounded-lg transition-all shadow-sm placeholder:text-[#a1a1aa]",
-          formFieldInputShowPasswordButton: "text-[#d4d4d8] hover:text-white",
-          
-          // Buttons
-          formButtonPrimary: "bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-semibold shadow-lg hover:shadow-xl transition-all",
-          
-          // Links and misc
-          footerActionLink: "text-[#0ea5e9] hover:text-[#38bdf8] font-medium underline-offset-4",
-          identityPreviewText: "text-white",
-          identityPreviewEditButton: "text-[#0ea5e9] hover:text-[#38bdf8]",
-          
-          // OTP/Code inputs
-          otpCodeFieldInput: "border-[2px] border-[#71717a] text-white bg-[#27272a]",
-          formResendCodeLink: "text-[#0ea5e9] hover:text-[#38bdf8]",
-          
-          // User button popover
-          userButtonPopoverCard: "bg-[#27272a] text-white border-[2px] border-[#71717a] shadow-md",
-          userButtonPopoverActionButton: "hover:bg-[#3f3f46] hover:text-white",
-          userButtonPopoverActionButtonText: "text-white",
-          userButtonPopoverActionButtonIcon: "text-[#d4d4d8]",
-          userButtonPopoverFooter: "border-t border-[#71717a]",
-        },
-      }}
-    >
+    <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}

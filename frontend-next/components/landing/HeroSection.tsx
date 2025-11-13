@@ -59,7 +59,7 @@ export default function HeroSection() {
             <Link href="/sign-up">Start Comparing Now</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="w-60">
-            <Link href="#demo">Watch Demo</Link>
+            <Link href="/coming-soon">Watch Demo</Link>
           </Button>
         </motion.div>
       </div>

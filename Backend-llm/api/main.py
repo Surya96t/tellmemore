@@ -33,7 +33,7 @@ app.add_middleware(
 @app.post("/chat/openai/{model_name}", response_model=QueryResponse, tags=["OpenAI Chat"])
 async def chat_with_openai_model(
     model_name: ModelName = Path(
-        ..., description="The OpenAI model to use for the chat. Supported: gpt-4o, gpt-4-turbo, gpt-3.5-turbo"),
+        ..., description="The OpenAI model to use for the chat. Supported: gpt-5, gpt-5-mini, gpt-nano"),
     request_body: SingleModelChatRequest = Body(...)
 ):
     if model_name.get_provider() != ModelProvider.OPENAI:
@@ -75,13 +75,13 @@ async def chat_with_openai_model(
 @app.post("/chat/google/{model_name_path}", response_model=QueryResponse, tags=["Google Chat"])
 async def chat_with_google_model(
     model_name_path: ModelName = Path(
-        ..., description="The specific Google Gemini model name to use. Supported: gemini-1.5-pro-latest, gemini-1.5-flash-latest"),
+        ..., description="The specific Google Gemini model name to use. Supported: gemini-2.5-pro-latest, gemini-2.5-flash-latest, gemini-2.5-lite"),
     request_body: SingleModelChatRequest = Body(...)
 ):
     if model_name_path.get_provider() != ModelProvider.GOOGLE:
         raise HTTPException(
             status_code=400,
-            detail=f"Model '{model_name_path.value}' is not a Google model. Supported: gemini-1.5-pro-latest, gemini-1.5-flash-latest."
+            detail=f"Model '{model_name_path.value}' is not a Google model. Supported: gemini-2.5-pro-latest, gemini-2.5-flash-latest, gemini-2.5-lite."
         )
 
     # Build messages array: system_prompts + chat_history + current question
@@ -117,13 +117,13 @@ async def chat_with_google_model(
 @app.post("/chat/groq/{model_name_path}", response_model=QueryResponse, tags=["Groq Chat"])
 async def chat_with_groq_model(
     model_name_path: ModelName = Path(
-        ..., description="The specific Groq LLaMA3 model name to use. Supported: llama3-8b-8192, llama3-70b-8192"),
+        ..., description="The specific Groq LLaMA3 model name to use. Supported: llama-3.3-70b-versatile, llama-3.1-8b-instant"),
     request_body: SingleModelChatRequest = Body(...)
 ):
     if model_name_path.get_provider() != ModelProvider.GROQ:
         raise HTTPException(
             status_code=400,
-            detail=f"Model '{model_name_path.value}' is not a Groq model. Supported: llama3-8b-8192, llama3-70b-8192."
+            detail=f"Model '{model_name_path.value}' is not a Groq model. Supported: llama-3.3-70b-versatile, llama-3.1-8b-instant."
         )
 
     # Build messages array: system_prompts + chat_history + current question

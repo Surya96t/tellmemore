@@ -1,10 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ShootingStars } from './ui/shooting-stars';
-import ElectricBorder from './ElectricBorder';
-import { Highlight } from './ui/hero-highlight';
-import Hyperspeed from './Hyperspeed';
+import { ShootingStars } from '../ui/shooting-stars';
+import ElectricBorder from '../ElectricBorder';
+import { Highlight } from '../ui/hero-highlight';
+import Hyperspeed from '../Hyperspeed';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Mail } from 'lucide-react';
+import { useInView } from '@/hooks/useInView';
 
 interface BentoCard {
   label: string;
@@ -50,9 +54,9 @@ const cardData: BentoCard[] = [
   },
   // Index 3: Bottom Left
   {
-    label: 'Security',
-    title: 'Secure & Private',
-    description: 'Bank-level 256-bit encryption',
+    label: 'Flexibility',
+    title: 'Your Way, Your Choice',
+    description: 'Switch between models instantly, no lock-in',
     animateTitle: true, // Fade with scale
   },
   // Index 4: Bottom Right
@@ -66,20 +70,43 @@ const cardData: BentoCard[] = [
 
 export default function BentoShowcase() {
   const [insightsZoomed, setInsightsZoomed] = useState(false);
+  const [hyperspeedKey, setHyperspeedKey] = useState(0);
+  
+  // Scroll-triggered animation
+  const { ref: sectionRef, inView } = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
 
   useEffect(() => {
-    // Trigger zoom effect after component mounts
-    const timer = setTimeout(() => {
-      setInsightsZoomed(true);
-    }, 500);
-    return () => clearTimeout(timer);
+    // Trigger zoom effect only when section is in view
+    if (inView) {
+      const timer = setTimeout(() => {
+        setInsightsZoomed(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [inView]);
+
+  useEffect(() => {
+    // Force Hyperspeed to recalculate dimensions after mount
+    const resizeTimer = setTimeout(() => {
+      // Trigger a window resize event to force Hyperspeed to recalculate
+      window.dispatchEvent(new Event('resize'));
+      // Also force a re-render by updating the key
+      setHyperspeedKey(prev => prev + 1);
+    }, 100);
+
+    return () => clearTimeout(resizeTimer);
   }, []);
 
   return (
-    <section className="w-full py-24 px-4 sm:px-6 lg:px-8">
+    <section ref={sectionRef} className="w-full py-24 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl w-full">
         {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
+        <div className={`text-center mb-12 md:mb-16 transition-all duration-700 ${
+          inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}>
           <h2 className="text-4xl sm:text-5xl font-bold text-zinc-900 dark:text-white mb-4">
             Powerful Features & Benefits
           </h2>
@@ -109,6 +136,9 @@ export default function BentoShowcase() {
         */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
           {cardData.map((card, index) => {
+            // Staggered animation delay for each card
+            const animationDelay = inView ? `${index * 100}ms` : '0ms';
+            
             // Base card styling - shared by all cards
             const cardContent = (
               <div
@@ -119,23 +149,29 @@ export default function BentoShowcase() {
                   border border-white/20 dark:border-white/10
                   bg-white/50 dark:bg-black/50
                   backdrop-blur-xl
-                  transition-all duration-500 ease-out
+                  transition-all duration-700 ease-out
                   hover:-translate-y-1
                   hover:shadow-lg hover:shadow-purple-500/20
                   overflow-hidden
+                  ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
                 `}
+                style={{
+                  transitionDelay: animationDelay,
+                }}
               >
-                {/* Shooting Stars Background */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
-                  <ShootingStars
-                    minSpeed={5}
-                    maxSpeed={15}
-                    minDelay={2000}
-                    maxDelay={5000}
-                    starColor="#9E00FF"
-                    trailColor="#2EB9DF"
-                  />
-                </div>
+                {/* Shooting Stars Background - Skip for Speed card (index 1) */}
+                {index !== 1 && (
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
+                    <ShootingStars
+                      minSpeed={5}
+                      maxSpeed={15}
+                      minDelay={2000}
+                      maxDelay={5000}
+                      starColor="#9E00FF"
+                      trailColor="#2EB9DF"
+                    />
+                  </div>
+                )}
 
                 {/* Time-lapse Animation for Productivity Card */}
                 {index === 2 && (
@@ -143,19 +179,19 @@ export default function BentoShowcase() {
                     {/* Animated Progress Bars */}
                     <div className="absolute top-1/4 left-8 right-8 space-y-4">
                       <div className="h-2 bg-white/10 dark:bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full animate-progress-fast" style={{ width: '0%' }} />
+                        <div className="h-full bg-linear-to-r from-purple-500 to-cyan-500 rounded-full animate-progress-fast" style={{ width: '0%' }} />
                       </div>
                       <div className="h-2 bg-white/10 dark:bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full animate-progress-medium" style={{ width: '0%', animationDelay: '0.5s' }} />
+                        <div className="h-full bg-linear-to-r from-purple-500 to-cyan-500 rounded-full animate-progress-medium" style={{ width: '0%' }} />
                       </div>
                       <div className="h-2 bg-white/10 dark:bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full animate-progress-slow" style={{ width: '0%', animationDelay: '1s' }} />
+                        <div className="h-full bg-linear-to-r from-purple-500 to-cyan-500 rounded-full animate-progress-slow" style={{ width: '0%' }} />
                       </div>
                     </div>
                     
                     {/* Animated Checkmarks */}
                     <div className="absolute top-1/2 left-8 space-y-3">
-                      <div className="flex items-center gap-2 animate-check-appear" style={{ animationDelay: '2s' }}>
+                      <div className="flex items-center gap-2 animate-check-appear" style={{ animationDelay: '0.5s' }}>
                         <div className="w-5 h-5 rounded-full bg-green-500/30 flex items-center justify-center">
                           <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -163,7 +199,7 @@ export default function BentoShowcase() {
                         </div>
                         <div className="h-1.5 w-32 bg-white/10 dark:bg-white/5 rounded" />
                       </div>
-                      <div className="flex items-center gap-2 animate-check-appear" style={{ animationDelay: '2.5s' }}>
+                      <div className="flex items-center gap-2 animate-check-appear" style={{ animationDelay: '1s' }}>
                         <div className="w-5 h-5 rounded-full bg-green-500/30 flex items-center justify-center">
                           <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -171,7 +207,7 @@ export default function BentoShowcase() {
                         </div>
                         <div className="h-1.5 w-24 bg-white/10 dark:bg-white/5 rounded" />
                       </div>
-                      <div className="flex items-center gap-2 animate-check-appear" style={{ animationDelay: '3s' }}>
+                      <div className="flex items-center gap-2 animate-check-appear" style={{ animationDelay: '1.5s' }}>
                         <div className="w-5 h-5 rounded-full bg-green-500/30 flex items-center justify-center">
                           <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -190,36 +226,43 @@ export default function BentoShowcase() {
                   </div>
                 )}
 
-                {/* Lock Icon for Security Card - Right Side */}
+                {/* Shuffle/Switch Icon for Flexibility Card - Right Side */}
                 {index === 3 && (
                   <div className="absolute right-12 top-1/2 -translate-y-1/2 pointer-events-none">
                     <ElectricBorder
-                      color="#ef4444"
+                      color="#10b981"
                       speed={1}
                       chaos={0.5}
                       thickness={2}
-                      style={{ borderRadius: 9999 }}
+                      style={{ borderRadius: 16 }}
                     >
-                      <div className="relative p-8 bg-white/10 dark:bg-black/10 backdrop-blur-sm rounded-full">
-                        {/* Glowing ring behind lock */}
+                      <div className="relative p-8 bg-white/10 dark:bg-black/10 backdrop-blur-sm rounded-2xl">
+                        {/* Glowing ring behind shuffle icon */}
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-32 h-32 rounded-full border-2 border-red-500/30 animate-security-pulse" />
+                          <div className="w-32 h-32 rounded-2xl border-2 border-green-500/30 animate-security-pulse" />
                         </div>
                         
-                        {/* Lock icon */}
+                        {/* Shuffle/Switch icon - Circular arrows showing model switching */}
                         <svg
-                          className="w-24 h-24 text-red-500/60 animate-security-float relative z-10"
-                          fill="currentColor"
+                          className="w-24 h-24 text-green-500/60 animate-security-float relative z-10"
+                          fill="none"
                           viewBox="0 0 24 24"
+                          stroke="currentColor"
                         >
-                          <path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm4 10.723V20h-2v-2.277c-.595-.347-1-.985-1-1.723 0-1.103.897-2 2-2s2 .897 2 2c0 .738-.405 1.376-1 1.723z" />
+                          {/* Circular refresh/switch arrows */}
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={2} 
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                          />
                         </svg>
                         
-                        {/* Small particles around lock */}
+                        {/* Small particles around shuffle icon */}
                         {[0, 1, 2].map((i) => (
                           <div
                             key={i}
-                            className="absolute w-1.5 h-1.5 bg-red-500 rounded-full animate-security-particle"
+                            className="absolute w-1.5 h-1.5 bg-green-500 rounded-full animate-security-particle"
                             style={{
                               top: `${20 + i * 30}%`,
                               right: `${-10 - i * 5}px`,
@@ -234,46 +277,49 @@ export default function BentoShowcase() {
 
                 {/* Hyperspeed Background for Speed Card */}
                 {index === 1 && (
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <Hyperspeed
-                      effectOptions={{
-                            onSpeedUp: () => {},
-                            onSlowDown: () => {},
-                            distortion: 'turbulentDistortion',
-                            length: 400,
-                            roadWidth: 9,
-                            islandWidth: 2,
-                            lanesPerRoad: 3,
-                            fov: 90,
-                            fovSpeedUp: 150,
-                            speedUp: 2,
-                            carLightsFade: 0.4,
-                            totalSideLightSticks: 50,
-                            lightPairsPerRoadWay: 50,
-                            shoulderLinesWidthPercentage: 0.05,
-                            brokenLinesWidthPercentage: 0.1,
-                            brokenLinesLengthPercentage: 0.5,
-                            lightStickWidth: [0.12, 0.5],
-                            lightStickHeight: [1.3, 1.7],
-                            movingAwaySpeed: [60, 80],
-                            movingCloserSpeed: [-120, -160],
-                            carLightsLength: [400 * 0.05, 400 * 0.15],
-                            carLightsRadius: [0.05, 0.14],
-                            carWidthPercentage: [0.3, 0.5],
-                            carShiftX: [-0.2, 0.2],
-                            carFloorSeparation: [0.05, 1],
-                            colors: {
-                            roadColor: 0x080808,
-                            islandColor: 0x0a0a0a,
-                            background: 0x000000,
-                            shoulderLines: 0x131318,
-                            brokenLines: 0x131318,
-                            leftCars: [0xdc5b20, 0xdca320, 0xdc2020],
-                            rightCars: [0x334bf7, 0xe5e6ed, 0xbfc6f3],
-                            sticks: 0xc5e8eb
-                            }
-                        }}
-                    />
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl z-0">
+                    <div className="absolute inset-0 opacity-80 scale-110">
+                      <Hyperspeed
+                        key={hyperspeedKey}
+                        effectOptions={{
+                              onSpeedUp: () => {},
+                              onSlowDown: () => {},
+                              distortion: 'turbulentDistortion',
+                              length: 400,
+                              roadWidth: 9,
+                              islandWidth: 2,
+                              lanesPerRoad: 3,
+                              fov: 90,
+                              fovSpeedUp: 150,
+                              speedUp: 2,
+                              carLightsFade: 0.4,
+                              totalSideLightSticks: 50,
+                              lightPairsPerRoadWay: 50,
+                              shoulderLinesWidthPercentage: 0.05,
+                              brokenLinesWidthPercentage: 0.1,
+                              brokenLinesLengthPercentage: 0.5,
+                              lightStickWidth: [0.12, 0.5],
+                              lightStickHeight: [1.3, 1.7],
+                              movingAwaySpeed: [60, 80],
+                              movingCloserSpeed: [-120, -160],
+                              carLightsLength: [400 * 0.05, 400 * 0.15],
+                              carLightsRadius: [0.05, 0.14],
+                              carWidthPercentage: [0.3, 0.5],
+                              carShiftX: [-0.2, 0.2],
+                              carFloorSeparation: [0.05, 1],
+                              colors: {
+                              roadColor: 0x1a1a2e,
+                              islandColor: 0x16213e,
+                              background: 0x0f0f1e,
+                              shoulderLines: 0x2d4059,
+                              brokenLines: 0x2d4059,
+                              leftCars: [0xff6b35, 0xf7931e, 0xff4757],
+                              rightCars: [0x5f27cd, 0x54a0ff, 0x48dbfb],
+                              sticks: 0x48dbfb
+                              }
+                          }}
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -289,11 +335,14 @@ export default function BentoShowcase() {
                         ${insightsZoomed ? 'zoom-complete' : 'zoom-start'}
                       `}
                     >
-                      <span className="inline-block px-3 py-1 text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/30 rounded-full relative overflow-hidden group/label cursor-pointer transition-all duration-300 hover:scale-110 hover:rotate-2 animate-pulse-subtle">
+                      <Badge 
+                        variant="secondary" 
+                        className="relative overflow-hidden group/label cursor-pointer transition-all duration-300 hover:scale-110 hover:rotate-2 animate-pulse-subtle text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/30"
+                      >
                         {/* Shimmer effect overlay */}
-                        <span className="absolute inset-0 -translate-x-full group-hover/label:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                        <span className="absolute inset-0 -translate-x-full group-hover/label:translate-x-full transition-transform duration-1000 bg-linear-to-r from-transparent via-white/20 to-transparent" />
                         <span className="relative z-10">{card.label}</span>
-                      </span>
+                      </Badge>
                     </div>
 
                     {/* Title - Appears after zoom */}
@@ -320,9 +369,12 @@ export default function BentoShowcase() {
                   <div className="relative h-full flex flex-col justify-between">
                     {/* Label */}
                     <div className="mb-4">
-                      <span className="inline-block px-3 py-1 text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/30 rounded-full">
+                      <Badge 
+                        variant="secondary"
+                        className="text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/30"
+                      >
                         {card.label}
-                      </span>
+                      </Badge>
                     </div>
 
                     {/* Title */}
@@ -349,7 +401,7 @@ export default function BentoShowcase() {
                         >
                           {/* Animated checkmark */}
                           <div
-                            className="w-5 h-5 rounded-full bg-green-500/20 dark:bg-green-400/20 flex items-center justify-center flex-shrink-0"
+                            className="w-5 h-5 rounded-full bg-green-500/20 dark:bg-green-400/20 flex items-center justify-center shrink-0"
                             style={{
                               animation: `checkPop 0.3s ease-out ${parseFloat(timing.delay) + 0.2}s forwards`,
                               transform: 'scale(0)',
@@ -373,7 +425,7 @@ export default function BentoShowcase() {
                           {/* Animated progress bar */}
                           <div className="flex-1 h-2 bg-white/20 dark:bg-white/10 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
+                              className="h-full bg-linear-to-r from-purple-500 to-blue-500 rounded-full"
                               style={{
                                 animation: `progressFill ${timing.duration} ease-out ${timing.delay} forwards`,
                                 width: '0%',
@@ -389,16 +441,25 @@ export default function BentoShowcase() {
                       {card.description}
                     </p>
 
-                    {/* Floating particles */}
+                    {/* Floating particles - Using fixed positions to avoid hydration mismatch */}
                     <div className="absolute inset-0 pointer-events-none">
-                      {[...Array(8)].map((_, i) => (
+                      {[
+                        { left: '15%', top: '20%', duration: '3.2s', delay: '0.5s' },
+                        { left: '85%', top: '15%', duration: '2.8s', delay: '1.2s' },
+                        { left: '25%', top: '60%', duration: '3.5s', delay: '0.8s' },
+                        { left: '70%', top: '75%', duration: '2.5s', delay: '1.5s' },
+                        { left: '45%', top: '30%', duration: '3.0s', delay: '0.3s' },
+                        { left: '90%', top: '85%', duration: '2.7s', delay: '1.0s' },
+                        { left: '35%', top: '50%', duration: '3.3s', delay: '0.6s' },
+                        { left: '60%', top: '90%', duration: '2.9s', delay: '1.8s' },
+                      ].map((particle, i) => (
                         <div
                           key={i}
                           className="absolute w-1 h-1 bg-purple-400 rounded-full"
                           style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            animation: `floatUp ${2 + Math.random() * 2}s ease-out ${Math.random() * 2}s infinite`,
+                            left: particle.left,
+                            top: particle.top,
+                            animation: `floatUp ${particle.duration} ease-out ${particle.delay} infinite`,
                             opacity: 0,
                           }}
                         />
@@ -412,9 +473,12 @@ export default function BentoShowcase() {
                       {/* Label - Hidden for Speed card (index 1) */}
                       {index !== 1 && (
                         <div className="mb-4">
-                          <span className="inline-block px-3 py-1 text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/30 rounded-full">
+                          <Badge 
+                            variant="secondary"
+                            className="text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/30"
+                          >
                             {card.label}
-                          </span>
+                          </Badge>
                         </div>
                       )}
 
@@ -440,13 +504,32 @@ export default function BentoShowcase() {
                       >
                         {card.description}
                       </p>
+                      
+                      {/* "Stay in Contact" Button for Coming Soon card (index 4) */}
+                      {index === 4 && (
+                        <div className="mt-6">
+                          <Button
+                            variant="default"
+                            size="lg"
+                            className="relative overflow-hidden bg-linear-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white group"
+                            asChild
+                          >
+                            <a href="mailto:contact@tellmemore.com" className="flex items-center gap-2">
+                              {/* Shimmer effect */}
+                              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-linear-to-r from-transparent via-white/20 to-transparent" />
+                              <Mail className="w-5 h-5" />
+                              <span className="relative z-10">Stay in Contact for Updates</span>
+                            </a>
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
               </div>
 
               {/* Hover Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-purple-500/0 to-purple-500/0 group-hover:from-purple-500/10 group-hover:via-purple-500/5 group-hover:to-transparent transition-all duration-500 rounded-2xl pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-br from-purple-500/0 via-purple-500/0 to-purple-500/0 group-hover:from-purple-500/10 group-hover:via-purple-500/5 group-hover:to-transparent transition-all duration-500 rounded-2xl pointer-events-none" />
             </div>
             );
 
@@ -496,7 +579,7 @@ export default function BentoShowcase() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         /* Insights - Subtle zoom-in effect */
         .zoom-start {
           transform: scale(1.3) translateZ(0);
@@ -696,6 +779,62 @@ export default function BentoShowcase() {
 
         .animate-security-particle {
           animation: security-particle 2s ease-in-out infinite;
+        }
+
+        /* Progress Bar Animations */
+        @keyframes progress-fast {
+          from {
+            width: 0%;
+          }
+          to {
+            width: 100%;
+          }
+        }
+
+        .animate-progress-fast {
+          animation: progress-fast 2s ease-out forwards;
+        }
+
+        @keyframes progress-medium {
+          from {
+            width: 0%;
+          }
+          to {
+            width: 80%;
+          }
+        }
+
+        .animate-progress-medium {
+          animation: progress-medium 2.5s ease-out forwards;
+        }
+
+        @keyframes progress-slow {
+          from {
+            width: 0%;
+          }
+          to {
+            width: 65%;
+          }
+        }
+
+        .animate-progress-slow {
+          animation: progress-slow 3s ease-out forwards;
+        }
+
+        /* Checkmark Appear Animation */
+        @keyframes check-appear {
+          from {
+            opacity: 0;
+            transform: scale(0) rotate(-45deg);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+          }
+        }
+
+        .animate-check-appear {
+          animation: check-appear 0.5s ease-out forwards;
         }
       `}</style>
     </section>
