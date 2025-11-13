@@ -949,11 +949,20 @@ class App {
       antialias: false,
       alpha: true
     });
-    this.renderer.setSize(container.offsetWidth, container.offsetHeight, false);
+    this.renderer.setSize(container.offsetWidth, container.offsetHeight, true); // Changed to true to update canvas CSS
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
     this.composer = new EffectComposer(this.renderer);
     container.appendChild(this.renderer.domElement);
+    
+    // Ensure canvas fills container and is centered
+    const canvas = this.renderer.domElement;
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.display = 'block';
 
     this.camera = new THREE.PerspectiveCamera(options.fov, container.offsetWidth / container.offsetHeight, 0.1, 10000);
     this.camera.position.z = -5;
@@ -1254,7 +1263,19 @@ const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {} }) => {
     };
   }, [mergedOptions]);
 
-  return <div id="lights" className="w-full h-full" ref={hyperspeed}></div>;
+  return (
+    <div 
+      id="lights" 
+      className="w-full h-full" 
+      ref={hyperspeed}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%'
+      }}
+    ></div>
+  );
 };
 
 export default Hyperspeed;

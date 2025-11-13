@@ -70,7 +70,6 @@ const cardData: BentoCard[] = [
 
 export default function BentoShowcase() {
   const [insightsZoomed, setInsightsZoomed] = useState(false);
-  const [hyperspeedKey, setHyperspeedKey] = useState(0);
   
   // Scroll-triggered animation
   const { ref: sectionRef, inView } = useInView({
@@ -87,18 +86,6 @@ export default function BentoShowcase() {
       return () => clearTimeout(timer);
     }
   }, [inView]);
-
-  useEffect(() => {
-    // Force Hyperspeed to recalculate dimensions after mount
-    const resizeTimer = setTimeout(() => {
-      // Trigger a window resize event to force Hyperspeed to recalculate
-      window.dispatchEvent(new Event('resize'));
-      // Also force a re-render by updating the key
-      setHyperspeedKey(prev => prev + 1);
-    }, 100);
-
-    return () => clearTimeout(resizeTimer);
-  }, []);
 
   return (
     <section ref={sectionRef} className="w-full py-24 px-4 sm:px-6 lg:px-8">
@@ -277,49 +264,48 @@ export default function BentoShowcase() {
 
                 {/* Hyperspeed Background for Speed Card */}
                 {index === 1 && (
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl z-0">
-                    <div className="absolute inset-0 opacity-80 scale-110">
-                      <Hyperspeed
-                        key={hyperspeedKey}
-                        effectOptions={{
-                              onSpeedUp: () => {},
-                              onSlowDown: () => {},
-                              distortion: 'turbulentDistortion',
-                              length: 400,
-                              roadWidth: 9,
-                              islandWidth: 2,
-                              lanesPerRoad: 3,
-                              fov: 90,
-                              fovSpeedUp: 150,
-                              speedUp: 2,
-                              carLightsFade: 0.4,
-                              totalSideLightSticks: 50,
-                              lightPairsPerRoadWay: 50,
-                              shoulderLinesWidthPercentage: 0.05,
-                              brokenLinesWidthPercentage: 0.1,
-                              brokenLinesLengthPercentage: 0.5,
-                              lightStickWidth: [0.12, 0.5],
-                              lightStickHeight: [1.3, 1.7],
-                              movingAwaySpeed: [60, 80],
-                              movingCloserSpeed: [-120, -160],
-                              carLightsLength: [400 * 0.05, 400 * 0.15],
-                              carLightsRadius: [0.05, 0.14],
-                              carWidthPercentage: [0.3, 0.5],
-                              carShiftX: [-0.2, 0.2],
-                              carFloorSeparation: [0.05, 1],
-                              colors: {
-                              roadColor: 0x1a1a2e,
-                              islandColor: 0x16213e,
-                              background: 0x0f0f1e,
-                              shoulderLines: 0x2d4059,
-                              brokenLines: 0x2d4059,
-                              leftCars: [0xff6b35, 0xf7931e, 0xff4757],
-                              rightCars: [0x5f27cd, 0x54a0ff, 0x48dbfb],
-                              sticks: 0x48dbfb
-                              }
-                          }}
-                      />
-                    </div>
+                  <div 
+                    className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl z-0"
+                  >
+                    <Hyperspeed
+                      effectOptions={{
+                            onSpeedUp: () => {},
+                            onSlowDown: () => {},
+                            distortion: 'turbulentDistortion',
+                            length: 400,
+                            roadWidth: 10,
+                            islandWidth: 2,
+                            lanesPerRoad: 3,
+                            fov: 90,
+                            fovSpeedUp: 150,
+                            speedUp: 2,
+                            carLightsFade: 0.4,
+                            totalSideLightSticks: 50,
+                            lightPairsPerRoadWay: 50,
+                            shoulderLinesWidthPercentage: 0.05,
+                            brokenLinesWidthPercentage: 0.1,
+                            brokenLinesLengthPercentage: 0.5,
+                            lightStickWidth: [0.12, 0.5],
+                            lightStickHeight: [1.3, 1.7],
+                            movingAwaySpeed: [60, 80],
+                            movingCloserSpeed: [-120, -160],
+                            carLightsLength: [400 * 0.05, 400 * 0.15],
+                            carLightsRadius: [0.05, 0.14],
+                            carWidthPercentage: [0.3, 0.5],
+                            carShiftX: [-0.2, 0.2],
+                            carFloorSeparation: [0.05, 1],
+                            colors: {
+                            roadColor: 0x1a1a2e,
+                            islandColor: 0x16213e,
+                            background: 0x0f0f1e,
+                            shoulderLines: 0x2d4059,
+                            brokenLines: 0x2d4059,
+                            leftCars: [0xff6b35, 0xf7931e, 0xff4757],
+                            rightCars: [0x5f27cd, 0x54a0ff, 0x48dbfb],
+                            sticks: 0x48dbfb
+                            }
+                        }}
+                    />
                   </div>
                 )}
 
