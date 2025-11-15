@@ -66,7 +66,7 @@ export async function GET(): Promise<NextResponse<BackendUser | ErrorResponse>> 
       ? `${clerkUser.firstName} ${clerkUser.lastName}`
       : clerkUser.firstName || clerkUser.username || 'Unknown User';
 
-    console.log('🔐 Clerk user authenticated:', { userId, email, name });
+    // console.log('🔐 Clerk user authenticated:', { userId, email, name });
 
     // TODO: Call Backend-da to create/get user
     // For now, create a temporary user mapping in memory
@@ -82,7 +82,7 @@ export async function GET(): Promise<NextResponse<BackendUser | ErrorResponse>> 
       created_at: new Date().toISOString(),
     };
 
-    console.log('✅ User retrieved/created:', mockUser);
+    // console.log('✅ User retrieved/created:', mockUser);
 
     return NextResponse.json(mockUser);
   } catch (error) {

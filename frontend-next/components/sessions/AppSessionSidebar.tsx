@@ -41,6 +41,7 @@ import { toast } from "sonner";
 import { UserButton } from "@clerk/nextjs";
 import type { ChatSession } from "@/lib/api/types";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 function groupSessionsByDate(sessions: ChatSession[]) {
   const now = new Date();
@@ -71,6 +72,7 @@ function groupSessionsByDate(sessions: ChatSession[]) {
 }
 
 export function AppSessionSidebar() {
+  const router = useRouter();
   const { data: sessions, isLoading, error } = useSessions();
   const createSession = useCreateSession();
   const updateSession = useUpdateSession();
@@ -92,8 +94,10 @@ export function AppSessionSidebar() {
 
   const handleNewSession = async () => {
     try {
-      await createSession.mutateAsync({ title: "New Chat Session" });
+      const newSession = await createSession.mutateAsync({ title: "New Chat Session" });
       toast.success("New session created");
+      // Navigate to the new session
+      router.push(`/dashboard?session=${newSession.session_id}`);
     } catch {
       toast.error("Failed to create session");
     }

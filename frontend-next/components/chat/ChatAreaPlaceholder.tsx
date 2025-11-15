@@ -37,10 +37,14 @@ export function ChatAreaPlaceholder() {
                 <SelectValue placeholder="Select model..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="gpt-4o">GPT-4 Optimized</SelectItem>
-                <SelectItem value="gpt-4o-mini">GPT-4 Optimized Mini</SelectItem>
-                <SelectItem value="gemini-2.0-flash-exp">Gemini 2.0 Flash</SelectItem>
+                <SelectItem value="gpt-5">GPT-5</SelectItem>
+                <SelectItem value="gpt-5-mini">GPT-5 Mini</SelectItem>
+                <SelectItem value="gpt-nano">GPT Nano</SelectItem>
+                <SelectItem value="gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
+                <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
+                <SelectItem value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</SelectItem>
                 <SelectItem value="llama-3.3-70b-versatile">LLaMA 3.3 70B</SelectItem>
+                <SelectItem value="llama-3.1-8b-instant">LLaMA 3.1 8B</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -52,10 +56,14 @@ export function ChatAreaPlaceholder() {
                 <SelectValue placeholder="Select model..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="gpt-4o">GPT-4 Optimized</SelectItem>
-                <SelectItem value="gpt-4o-mini">GPT-4 Optimized Mini</SelectItem>
-                <SelectItem value="gemini-2.0-flash-exp">Gemini 2.0 Flash</SelectItem>
+                <SelectItem value="gpt-5">GPT-5</SelectItem>
+                <SelectItem value="gpt-5-mini">GPT-5 Mini</SelectItem>
+                <SelectItem value="gpt-nano">GPT Nano</SelectItem>
+                <SelectItem value="gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
+                <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
+                <SelectItem value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</SelectItem>
                 <SelectItem value="llama-3.3-70b-versatile">LLaMA 3.3 70B</SelectItem>
+                <SelectItem value="llama-3.1-8b-instant">LLaMA 3.1 8B</SelectItem>
               </SelectContent>
             </Select>
           </div>

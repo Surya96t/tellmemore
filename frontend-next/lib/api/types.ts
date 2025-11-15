@@ -50,20 +50,16 @@ export interface CreatePromptRequest {
 export type ModelProvider = 'openai' | 'google' | 'groq';
 
 export type ModelName =
-  // OpenAI
-  | 'gpt-4o'
-  | 'gpt-4o-mini'
-  | 'o1-preview'
-  | 'o1-mini'
-  // Google Gemini
-  | 'gemini-2.0-flash-exp'
-  | 'gemini-exp-1206'
-  | 'gemini-2.0-flash-thinking-exp-1219'
-  | 'gemini-1.5-pro-latest'
-  | 'gemini-1.5-flash-latest'
-  // Groq LLaMA
+  // OpenAI (Latest: GPT-5 series)
+  | 'gpt-5'
+  | 'gpt-5-mini'
+  | 'gpt-nano'
+  // Google Gemini (Latest: 2.5 series)
+  | 'gemini-2.5-pro'
+  | 'gemini-2.5-flash'
+  | 'gemini-2.5-flash-lite'
+  // Groq LLaMA (Latest: 3.3 70B & 3.1 8B)
   | 'llama-3.3-70b-versatile'
-  | 'llama-3.1-70b-versatile'
   | 'llama-3.1-8b-instant';
 
 export interface ChatRequest {

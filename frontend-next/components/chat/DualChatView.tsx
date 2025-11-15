@@ -82,16 +82,16 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
   );
 
   // Debug: Log prompts data
-  console.log('📝 Chat history data:', {
-    sessionId,
-    promptsCount: prompts?.length || 0,
-    prompts: prompts?.map(p => ({
-      id: p.prompt_id,
-      text: p.prompt_text.slice(0, 30),
-      responsesCount: p.llm_responses?.length || 0,
-      responses: p.llm_responses,
-    })),
-  });
+  // console.log('📝 Chat history data:', {
+  //   sessionId,
+  //   promptsCount: prompts?.length || 0,
+  //   prompts: prompts?.map(p => ({
+  //     id: p.prompt_id,
+  //     text: p.prompt_text.slice(0, 30),
+  //     responsesCount: p.llm_responses?.length || 0,
+  //     responses: p.llm_responses,
+  //   })),
+  // });
 
   // Convert prompts to messages (compute once per prompts change)
   // This is the source of truth for chat history - no local state needed!
@@ -149,12 +149,12 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
   }, [prompts, leftModel, rightModel]);
 
   // Debug: Log converted messages
-  console.log('💬 Converted messages:', {
-    leftCount: leftMessages.length,
-    rightCount: rightMessages.length,
-    leftMessages,
-    rightMessages,
-  });
+  // console.log('💬 Converted messages:', {
+  //   leftCount: leftMessages.length,
+  //   rightCount: rightMessages.length,
+  //   leftMessages,
+  //   rightMessages,
+  // });
 
   // Single handler that sends to BOTH models simultaneously
   const handleSend = async (message: string) => {
@@ -184,7 +184,7 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
       timestamp: new Date().toISOString(),
     };
 
-    console.log('💬 Adding optimistic user message to cache');
+    // console.log('💬 Adding optimistic user message to cache');
     queryClient.setQueryData<Prompt[]>(queryKey, (old: Prompt[] | undefined) => {
       return [...(old || []), optimisticMessage];
     });
@@ -207,7 +207,7 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
 
       // Get selected system prompts
       const selectedSystemPrompts = getSelectedSystemPromptTexts(systemPrompts || []);
-      console.log('📝 Selected system prompts:', selectedSystemPrompts);
+      // console.log('📝 Selected system prompts:', selectedSystemPrompts);
 
       // STEP 2: Send to both models in parallel (background)
       const [leftResponse, rightResponse] = await Promise.allSettled([
@@ -232,43 +232,43 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
       let totalTokens = 0;
 
       // DEBUG: Log raw responses
-      console.log('🔍 Raw LLM responses:', {
-        left: {
-          status: leftResponse.status,
-          value: leftResponse.status === 'fulfilled' ? leftResponse.value : null,
-          reason: leftResponse.status === 'rejected' ? leftResponse.reason : null,
-        },
-        right: {
-          status: rightResponse.status,
-          value: rightResponse.status === 'fulfilled' ? rightResponse.value : null,
-          reason: rightResponse.status === 'rejected' ? rightResponse.reason : null,
-        },
-      });
+      // console.log('🔍 Raw LLM responses:', {
+      //   left: {
+      //     status: leftResponse.status,
+      //     value: leftResponse.status === 'fulfilled' ? leftResponse.value : null,
+      //     reason: leftResponse.status === 'rejected' ? leftResponse.reason : null,
+      //   },
+      //   right: {
+      //     status: rightResponse.status,
+      //     value: rightResponse.status === 'fulfilled' ? rightResponse.value : null,
+      //     reason: rightResponse.status === 'rejected' ? rightResponse.reason : null,
+      //   },
+      // });
 
       // Handle left model response
       if (leftResponse.status === "fulfilled") {
         // Extract token usage (works for OpenAI, Gemini, Groq)
         const usage = leftResponse.value.usage;
-        console.log('🔍 Left model usage object:', usage);
+        // console.log('🔍 Left model usage object:', usage);
         if (usage) {
           const tokens = usage.total_tokens || usage.total_token_count || 0;
           totalTokens += tokens;
-          console.log(`🔢 Left model tokens: ${tokens} (total_tokens: ${usage.total_tokens}, total_token_count: ${usage.total_token_count})`);
-        } else {
-          console.warn('⚠️ Left model has NO usage data');
-        }
+          // console.log(`🔢 Left model tokens: ${tokens} (total_tokens: ${usage.total_tokens}, total_token_count: ${usage.total_token_count})`);
+        } // else {
+        //   console.warn('⚠️ Left model has NO usage data');
+        // }
 
         if (leftResponse.value.answer) {
-          console.log('✅ Left model response:', leftResponse.value.answer.slice(0, 100));
+          // console.log('✅ Left model response:', leftResponse.value.answer.slice(0, 100));
           responses.push(leftResponse.value.answer);
         } else if (leftResponse.value.error_message) {
           console.error('❌ Left model returned error:', leftResponse.value.error_message);
           setErrorLeft(leftResponse.value.error_message);
           responses.push(""); // Empty response for error
-        } else {
-          console.warn('⚠️ Left model returned null answer (no error)');
-          responses.push(""); // Empty response for null answer
-        }
+        } // else {
+        //   console.warn('⚠️ Left model returned null answer (no error)');
+        //   responses.push(""); // Empty response for null answer
+        // }
       } else {
         console.error('❌ Left model promise rejected:', leftResponse.reason);
         setErrorLeft(leftResponse.reason?.message || "Failed to get response from left model");
@@ -279,44 +279,44 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
       if (rightResponse.status === "fulfilled") {
         // Extract token usage (works for OpenAI, Gemini, Groq)
         const usage = rightResponse.value.usage;
-        console.log('🔍 Right model usage object:', usage);
+        // console.log('🔍 Right model usage object:', usage);
         if (usage) {
           const tokens = usage.total_tokens || usage.total_token_count || 0;
           totalTokens += tokens;
-          console.log(`🔢 Right model tokens: ${tokens} (total_tokens: ${usage.total_tokens}, total_token_count: ${usage.total_token_count})`);
-        } else {
-          console.warn('⚠️ Right model has NO usage data');
-        }
+          // console.log(`🔢 Right model tokens: ${tokens} (total_tokens: ${usage.total_tokens}, total_token_count: ${usage.total_token_count})`);
+        } // else {
+        //   console.warn('⚠️ Right model has NO usage data');
+        // }
 
         if (rightResponse.value.answer) {
-          console.log('✅ Right model response:', rightResponse.value.answer.slice(0, 100));
+          // console.log('✅ Right model response:', rightResponse.value.answer.slice(0, 100));
           responses.push(rightResponse.value.answer);
         } else if (rightResponse.value.error_message) {
           console.error('❌ Right model returned error:', rightResponse.value.error_message);
           setErrorRight(rightResponse.value.error_message);
           responses.push(""); // Empty response for error
-        } else {
-          console.warn('⚠️ Right model returned null answer (no error)');
-          responses.push(""); // Empty response for null answer
-        }
+        } // else {
+        //   console.warn('⚠️ Right model returned null answer (no error)');
+        //   responses.push(""); // Empty response for null answer
+        // }
       } else {
         console.error('❌ Right model promise rejected:', rightResponse.reason);
         setErrorRight(rightResponse.reason?.message || "Failed to get response from right model");
         responses.push(""); // Ensure we have 2 elements
       }
 
-      console.log('📦 Responses to save:', {
-        count: responses.length,
-        hasLeft: responses[0]?.length > 0,
-        hasRight: responses[1]?.length > 0,
-        leftPreview: responses[0]?.slice(0, 50),
-        rightPreview: responses[1]?.slice(0, 50),
-        totalTokens,
-      });
+      // console.log('📦 Responses to save:', {
+      //   count: responses.length,
+      //   hasLeft: responses[0]?.length > 0,
+      //   hasRight: responses[1]?.length > 0,
+      //   leftPreview: responses[0]?.slice(0, 50),
+      //   rightPreview: responses[1]?.slice(0, 50),
+      //   totalTokens,
+      // });
 
       // STEP 3: Update optimistic message with real responses
       // First, update the cache manually (replace empty llm_responses with real data)
-      console.log('🔄 Updating optimistic message with real responses');
+      // console.log('🔄 Updating optimistic message with real responses');
       queryClient.setQueryData<Prompt[]>(queryKey, (old: Prompt[] | undefined) => {
         if (!old || old.length === 0) return old;
         
@@ -343,7 +343,7 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
         tokens_used: totalTokens, // Total tokens used by both models
       });
 
-      console.log(`✅ Successfully saved prompt with dual responses (${totalTokens} tokens used)`);
+      // console.log(`✅ Successfully saved prompt with dual responses (${totalTokens} tokens used)`);
     } catch (error) {
       console.error("Failed to send message:", error);
       const errorMsg = error instanceof Error ? error.message : "Failed to send message";
@@ -351,7 +351,7 @@ export function DualChatView({ sessionId }: DualChatViewProps) {
       setErrorRight(errorMsg);
       
       // Rollback: Remove optimistic message on error
-      console.log('❌ Error occurred, rolling back optimistic update');
+      // console.log('❌ Error occurred, rolling back optimistic update');
       queryClient.setQueryData<Prompt[]>(queryKey, (old: Prompt[] | undefined) => {
         if (!old || old.length === 0) return old;
         // Remove the last message if it matches our optimistic message

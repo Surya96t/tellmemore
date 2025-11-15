@@ -21,11 +21,11 @@ const stats = [
 
 export default function SocialProof() {
     return (
-        <section className="bg-linear-to-b from-black via-slate-950 to-black py-16 md:py-24">
+        <section className="bg-linear-to-b from-white via-zinc-50 to-white dark:from-black dark:via-slate-950 dark:to-black py-16 md:py-24">
             <div className="mx-auto max-w-7xl px-6">
                 {/* Trust Badges */}
                 <div className="text-center mb-12">
-                    <p className="text-sm uppercase tracking-wider text-white/60 mb-8">
+                    <p className="text-sm uppercase tracking-wider text-zinc-600 dark:text-white/60 mb-8">
                         Trusted by developers and teams worldwide
                     </p>
                     
@@ -35,10 +35,10 @@ export default function SocialProof() {
                             {[...techLogos, ...techLogos].map((tech, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex items-center gap-3 px-6 py-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 whitespace-nowrap"
+                                    className="flex items-center gap-3 px-6 py-3 rounded-lg bg-zinc-100 dark:bg-white/5 backdrop-blur-sm border border-zinc-200 dark:border-white/10 whitespace-nowrap"
                                 >
                                     <span className="text-3xl">{tech.icon}</span>
-                                    <span className="text-white/80 font-medium">{tech.name}</span>
+                                    <span className="text-zinc-800 dark:text-white/80 font-medium">{tech.name}</span>
                                 </div>
                             ))}
                         </div>
@@ -56,10 +56,10 @@ export default function SocialProof() {
                             viewport={{ once: true }}
                             className="relative group"
                         >
-                            <div className="text-center p-6 rounded-xl bg-linear-to-br from-white/5 to-white/2 border border-white/10 backdrop-blur-sm hover:border-blue-500/50 transition-all duration-300">
-                                <stat.icon className="w-8 h-8 mx-auto mb-3 text-blue-400 group-hover:text-blue-300 transition-colors" />
-                                <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
-                                <div className="text-sm text-white/60">{stat.label}</div>
+                            <div className="text-center p-6 rounded-xl bg-linear-to-br from-zinc-100 to-zinc-50 dark:from-white/5 dark:to-white/2 border border-zinc-200 dark:border-white/10 backdrop-blur-sm hover:border-blue-500/50 transition-all duration-300">
+                                <stat.icon className="w-8 h-8 mx-auto mb-3 text-blue-500 dark:text-blue-400 group-hover:text-blue-400 dark:group-hover:text-blue-300 transition-colors" />
+                                <div className="text-3xl font-bold text-zinc-900 dark:text-white mb-1">{stat.value}</div>
+                                <div className="text-sm text-zinc-600 dark:text-white/60">{stat.label}</div>
                             </div>
                             {/* Glow effect */}
                             <div className="absolute inset-0 bg-blue-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
@@ -70,8 +70,8 @@ export default function SocialProof() {
                 {/* Security Badge */}
                 <div className="mt-12 flex justify-center">
                     <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-linear-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 backdrop-blur-sm">
-                        <Shield className="w-5 h-5 text-green-400" />
-                        <span className="text-white/90 font-medium">Enterprise-grade Security & Privacy</span>
+                        <Shield className="w-5 h-5 text-green-500 dark:text-green-400" />
+                        <span className="text-zinc-900 dark:text-white/90 font-medium">Enterprise-grade Security & Privacy</span>
                     </div>
                 </div>
             </div>

@@ -98,47 +98,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: undefined, // Let ThemeProvider control the theme
-        variables: {
-          colorPrimary: "hsl(var(--primary))",
-          colorBackground: "hsl(var(--background))",
-          colorInputBackground: "hsl(var(--input))",
-          colorInputText: "hsl(var(--foreground))",
-          colorText: "hsl(var(--foreground))",
-          colorTextSecondary: "hsl(var(--muted-foreground))",
-          colorDanger: "hsl(var(--destructive))",
-          colorSuccess: "hsl(var(--primary))",
-          colorWarning: "hsl(var(--warning))",
-          colorNeutral: "hsl(var(--muted))",
-          fontFamily: "var(--font-geist-sans)",
-          borderRadius: "0.5rem",
-        },
-        elements: {
-          card: "bg-card text-card-foreground border border-border shadow-sm",
-          headerTitle: "text-foreground font-semibold",
-          headerSubtitle: "text-muted-foreground",
-          formButtonPrimary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
-          formFieldInput: "bg-background border border-input text-foreground shadow-sm",
-          footerActionLink: "text-primary hover:text-primary/90 underline-offset-4",
-          identityPreviewText: "text-foreground",
-          identityPreviewEditButton: "text-primary hover:text-primary/90",
-          userButtonPopoverCard: "bg-popover text-popover-foreground border border-border shadow-md",
-          userButtonPopoverActionButton: "hover:bg-accent hover:text-accent-foreground",
-          userButtonPopoverActionButtonText: "text-foreground",
-          userButtonPopoverActionButtonIcon: "text-muted-foreground",
-          userButtonPopoverFooter: "border-t border-border",
-        },
-      }}
-    >
+    <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen overflow-hidden`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <ThemeProvider
               attribute="class"
-              defaultTheme="dark"
+              defaultTheme="system"
               enableSystem
               disableTransitionOnChange
             >

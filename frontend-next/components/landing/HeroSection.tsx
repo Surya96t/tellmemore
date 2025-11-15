@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function HeroSection() {
@@ -11,8 +12,8 @@ export default function HeroSection() {
     "Experience the power of multiple AI minds working on your questions. TellMeMore lets you compare responses from leading AI models side-by-side, helping you make better decisions faster.";
   return (
     <div className="relative w-full mx-auto my-10 flex max-w-7xl flex-col items-center justify-center">
-      <div className="px-4 py-10 md:py-20">
-        <h1 className="relative z-10 mx-auto max-w-4xl text-center font-bold text-white dark:text-slate-300">
+      <div className="px-4 py-5 md:py-5">
+        <h1 className="relative z-10 mx-auto max-w-4xl text-center font-bold text-zinc-900 dark:text-white">
           <span className="block text-4xl md:text-6xl lg:text-7xl mb-2 tracking-tight">
             {headline[0].split(" ").map((word, index) => (
               <motion.span
@@ -26,7 +27,7 @@ export default function HeroSection() {
               </motion.span>
             ))}
           </span>
-          <span className="block text-3xl md:text-5xl lg:text-6xl text-blue-300 font-semibold tracking-tight">
+          <span className="block text-3xl md:text-5xl lg:text-6xl text-blue-600 dark:text-blue-400 font-semibold tracking-tight">
             {headline[1].split(" ").map((word, index) => (
               <motion.span
                 key={index}
@@ -44,7 +45,7 @@ export default function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.8 }}
-          className="relative z-10 mx-auto max-w-xl py-4 text-center text-lg font-normal text-white/80 dark:text-neutral-400"
+          className="relative z-10 mx-auto max-w-xl py-4 text-center text-lg font-normal text-zinc-600 dark:text-zinc-300"
         >
           {subheadline}
         </motion.p>
@@ -55,10 +56,10 @@ export default function HeroSection() {
           className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4"
         >
           <Button asChild size="lg" className="w-60">
-            <a href="/sign-up">Start Comparing Now</a>
+            <Link href="/sign-up">Start Comparing Now</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="w-60">
-            <a href="#demo">Watch Demo</a>
+            <Link href="/coming-soon">Watch Demo</Link>
           </Button>
         </motion.div>
       </div>

@@ -94,13 +94,20 @@ class QueryResponse(BaseModel):
 
 ```python
 class ModelName(str, Enum):
-    GPT_4O = "gpt-4o"
-    GPT_4O_MINI = "gpt-4o-mini"
-    GEMINI_1_5_PRO_LATEST = "gemini-1.5-pro-latest"
-    GEMINI_1_5_FLASH_LATEST = "gemini-1.5-flash-latest"
-    GEMINI_1_0_PRO = "gemini-1.0-pro"
-    LLAMA3_8B_8192 = "llama3-8b-8192"
-    LLAMA3_70B_8192 = "llama3-70b-8192"
+    # OpenAI Models (3)
+    GPT_5 = "gpt-5"
+    GPT_5_MINI = "gpt-5-mini"
+    GPT_NANO = "gpt-nano"
+
+    # Google Gemini Models (3)
+    GEMINI_2_5_PRO_LATEST = "gemini-2.5-pro-latest"
+    GEMINI_2_5_FLASH_LATEST = "gemini-2.5-flash-latest"
+    GEMINI_2_5_LITE = "gemini-2.5-lite"
+
+    # Groq LLaMA Models (3)
+    LLAMA_3_3_70B_VERSATILE = "llama-3.3-70b-versatile"
+    LLAMA_3_1_8B_INSTANT = "llama-3.1-8b-instant"
+    LLAMA_3_1_70B_VERSATILE = "llama-3.1-70b-versatile"  # Legacy support
 ```
 
 ### ModelProvider

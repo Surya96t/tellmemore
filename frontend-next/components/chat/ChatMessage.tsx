@@ -81,7 +81,7 @@ export function ChatMessage({
             <div className="whitespace-pre-wrap text-sm">{content}</div>
           ) : (
             // Assistant message: Markdown with code highlighting
-            <div className="prose prose-sm dark:prose-invert max-w-none">
+            <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-7 prose-p:mb-4 prose-headings:font-semibold prose-headings:mb-3 prose-headings:mt-6 prose-ul:my-3 prose-ol:my-3 prose-li:my-1 prose-code:text-sm prose-pre:my-4">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight]}
@@ -103,6 +103,18 @@ export function ChatMessage({
                       </code>
                     );
                   },
+                  p: ({ children }) => (
+                    <p className="mb-4 last:mb-0">{children}</p>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="my-3 space-y-1">{children}</ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="my-3 space-y-1">{children}</ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="leading-relaxed">{children}</li>
+                  ),
                 }}
               >
                 {content}

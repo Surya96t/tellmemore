@@ -1,111 +1,80 @@
 'use client'
 
-import { Github, Twitter, Linkedin, Mail } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Footer() {
-    const footerLinks = {
-        Product: [
-            { name: 'Features', href: '#features' },
-            { name: 'Pricing', href: '#pricing' },
-            { name: 'How It Works', href: '#how-it-works' },
-            { name: 'FAQ', href: '#faq' }
-        ],
-        Company: [
-            { name: 'About', href: '/about' },
-            { name: 'Blog', href: '/blog' },
-            { name: 'Careers', href: '/careers' },
-            { name: 'Contact', href: '/contact' }
-        ],
-        Resources: [
-            { name: 'Documentation', href: '/docs' },
-            { name: 'API Reference', href: '/api' },
-            { name: 'Community', href: '/community' },
-            { name: 'Support', href: '/support' }
-        ],
-        Legal: [
-            { name: 'Privacy Policy', href: '/privacy' },
-            { name: 'Terms of Service', href: '/terms' },
-            { name: 'Cookie Policy', href: '/cookies' },
-            { name: 'Security', href: '/security' }
-        ]
-    }
-
-    const socialLinks = [
-        { name: 'Twitter', icon: Twitter, href: 'https://twitter.com/tellmemore' },
-        { name: 'GitHub', icon: Github, href: 'https://github.com/tellmemore' },
-        { name: 'LinkedIn', icon: Linkedin, href: 'https://linkedin.com/company/tellmemore' },
-        { name: 'Email', icon: Mail, href: 'mailto:hello@tellmemore.ai' }
-    ]
+    /* 
+     * Commented out - placeholder links not needed yet
+     * 
+     * const footerLinks = {
+     *     Product: [
+     *         { name: 'Features', href: '#features' },
+     *         { name: 'Pricing', href: '#pricing' },
+     *         { name: 'How It Works', href: '#how-it-works' },
+     *         { name: 'FAQ', href: '#faq' }
+     *     ],
+     *     Company: [
+     *         { name: 'About', href: '/about' },
+     *         { name: 'Blog', href: '/blog' },
+     *         { name: 'Careers', href: '/careers' },
+     *         { name: 'Contact', href: '/contact' }
+     *     ],
+     *     Resources: [
+     *         { name: 'Documentation', href: '/docs' },
+     *         { name: 'API Reference', href: '/api' },
+     *         { name: 'Community', href: '/community' },
+     *         { name: 'Support', href: '/support' }
+     *     ],
+     *     Legal: [
+     *         { name: 'Privacy Policy', href: '/privacy' },
+     *         { name: 'Terms of Service', href: '/terms' },
+     *         { name: 'Cookie Policy', href: '/cookies' },
+     *         { name: 'Security', href: '/security' }
+     *     ]
+     * }
+     *
+     * const socialLinks = [
+     *     { name: 'Twitter', icon: Twitter, href: 'https://twitter.com/tellmemore' },
+     *     { name: 'GitHub', icon: Github, href: 'https://github.com/tellmemore' },
+     *     { name: 'LinkedIn', icon: Linkedin, href: 'https://linkedin.com/company/tellmemore' },
+     *     { name: 'Email', icon: Mail, href: 'mailto:hello@tellmemore.ai' }
+     * ]
+     */
 
     return (
-        <footer className="bg-black border-t border-white/10">
-            <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
-                {/* Main footer content */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
-                    {/* Brand column */}
-                    <div className="col-span-2 md:col-span-1">
-                        <Link href="/" className="flex items-center gap-2 mb-4">
-                            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-600 to-blue-400" />
-                            <span className="text-xl font-bold text-white">TellMeMore</span>
-                        </Link>
-                        <p className="text-white/60 text-sm mb-6">
-                            The intelligent platform for multi-model AI conversations.
-                        </p>
-                        <div className="flex gap-4">
-                            {socialLinks.map((link) => {
-                                const Icon = link.icon
-                                return (
-                                    <Link
-                                        key={link.name}
-                                        href={link.href}
-                                        className="text-white/60 hover:text-white transition-colors"
-                                        aria-label={link.name}
-                                    >
-                                        <Icon className="w-5 h-5" />
-                                    </Link>
-                                )
-                            })}
+        <footer className="relative overflow-hidden">
+            {/* Frosted glass background */}
+            <div className="absolute inset-0 backdrop-blur-sm" />
+           
+            {/* Subtle gradient overlay */}
+            {/*<div className="absolute inset-0 bg-linear-to-b from-blue-500/5 via-transparent to-purple-500/5 dark:from-blue-500/10 dark:via-transparent dark:to-purple-500/10 pointer-events-none" />
+            */}
+            {/* Top gradient border accent */}
+            {/*<div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-blue-400/30 to-transparent" />
+            */}
+            <div className="relative w-full px-2 py-2">
+                {/* Simplified footer content - brand and copyright only */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 max-w-full">
+                    {/* Brand - pushed to left edge */}
+                    <Link href="/" className="inline-flex items-center gap-2 group md:shrink-0">
+                        {/* Favicon logo */}
+                        <div className="relative w-8 h-8 rounded-lg overflow-hidden transition-all duration-300 group-hover:scale-105">
+                            <Image 
+                                src="/favicon.ico" 
+                                alt="TellMeMore Logo" 
+                                width={32} 
+                                height={32}
+                                className="object-contain"
+                            />
                         </div>
-                    </div>
+                        <span className="text-lg font-bold text-zinc-900 dark:text-white">TellMeMore</span>
+                    </Link>
 
-                    {/* Links columns */}
-                    {Object.entries(footerLinks).map(([category, links]) => (
-                        <div key={category}>
-                            <h3 className="text-white font-semibold mb-4">{category}</h3>
-                            <ul className="space-y-3">
-                                {links.map((link) => (
-                                    <li key={link.name}>
-                                        <Link
-                                            href={link.href}
-                                            className="text-white/60 hover:text-white text-sm transition-colors"
-                                        >
-                                            {link.name}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Bottom bar */}
-                <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-white/60 text-sm">
+                    {/* Copyright - pushed to right edge */}
+                    <p className="text-zinc-600 dark:text-zinc-400 text-sm whitespace-nowrap md:shrink-0">
                         © {new Date().getFullYear()} TellMeMore. All rights reserved.
                     </p>
-                    <div className="flex items-center gap-6 text-sm">
-                        <Link href="/status" className="text-white/60 hover:text-white transition-colors">
-                            Status
-                        </Link>
-                        <Link href="/changelog" className="text-white/60 hover:text-white transition-colors">
-                            Changelog
-                        </Link>
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-green-400" />
-                            <span className="text-white/60">All systems operational</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </footer>

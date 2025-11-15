@@ -1,46 +1,63 @@
 "use client";
-import Beams from "@/components/Beams";
-import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
-import Features from "@/components/Features";
-import HowItWorks from "@/components/HowItWorks";
-import MagicBento from "@/components/MagicBento";
-import SocialProof from "@/components/SocialProof";
-import Pricing from "@/components/Pricing";
-import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
-
+import BackgroundEffects from "@/components/landing/BackgroundEffects";
+import HeroSection from "@/components/landing/HeroSection";
+import HeroImage from "@/components/landing/HeroImage";
+import FeaturesGrid from "@/components/landing/FeaturesGrid";
+import BentoShowcase from "@/components/landing/BentoShowcase";
+import HowItWorks from "@/components/landing/HowItWorks";
+import FinalCTA from "@/components/landing/FinalCTA";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen w-full bg-black overflow-x-hidden">
-      {/* Hero Section with Beams background and Navbar on top */}
-      <section className="relative w-full flex flex-col items-center justify-center min-h-[600px]">
-        <div className="absolute inset-0 pointer-events-none">
-          <Beams
-            beamWidth={3}
-            beamHeight={30}
-            beamNumber={20}
-            lightColor="#0078d4"
-            speed={2}
-            noiseIntensity={1.75}
-            scale={0.2}
-            rotation={30}
-          />
-        </div>
+    <div className="relative min-h-screen w-full bg-white dark:bg-black overflow-x-hidden">
+      {/* Navbar - Fixed at top */}
+      {/*<Navbar />*/}
+
+      {/* Background Effects */}
+      <BackgroundEffects />
+
+      {/* Main Content */}
+      <main className="relative z-10">
+
         <Navbar />
-        <HeroSection />
-      </section>
-      {/* Features Section below Hero */}
-      <main className="flex flex-col items-center w-full">
-        <Features />
-        <HowItWorks />
-        <MagicBento />
-        <SocialProof />
-        <Pricing />
+
+        {/* Hero Section with screenshot */}
+        <section className="w-full px-4 sm:px-6 lg:px-8 pt-5">
+          <HeroSection />
+          <HeroImage />
+        </section>
+
+        {/* Bento Showcase */}
+        <section id="features">
+          <BentoShowcase />
+        </section>
+
+        {/* Features Section - Why Choose TellMeMore */}
+        <section id="why-choose">
+          <FeaturesGrid />
+        </section>
+
+        {/* How It Works Section */}
+        <section id="how-it-works">
+          <HowItWorks />
+        </section>
+
+        {/* Pricing */}
+        {/*<Pricing />*/}
+
+        {/* Stats/Social Proof Section */}
+        {/*<StatsSection />*/}
+
+        {/* Final CTA Section */}
         <FinalCTA />
+
+        <Footer />
       </main>
-      <Footer />
+
+      {/* Footer */}
+      {/*<Footer />*/}
     </div>
   );
 }
