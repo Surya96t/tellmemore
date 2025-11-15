@@ -1,4 +1,3 @@
-import { Empty } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Home, ArrowLeft } from "lucide-react";
