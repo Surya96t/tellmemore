@@ -67,8 +67,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<PromptResp
       );
     }
 
-    // Get or create user in Backend-da using helper
-    const backendUser = await getOrCreateBackendUser();
+    // Get or create user in Backend-da (ensures user exists)
+    await getOrCreateBackendUser();
 
     // Get session_id from query parameters
     const { searchParams } = new URL(request.url);

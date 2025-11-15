@@ -1,7 +1,7 @@
 'use client'
 
 import { Gemini, OpenAI, Groq } from '@/components/logos'
-import { Sparkles, Zap, BarChart3, Check, Shield, Clock, Lock } from 'lucide-react'
+import { Sparkles, Zap, BarChart3, Check, Shield, Clock } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export default function IntegrationsSection() {

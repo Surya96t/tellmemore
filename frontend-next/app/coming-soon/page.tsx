@@ -29,8 +29,8 @@ export default function ComingSoon() {
         {/* Icon */}
         <div className="mb-8 flex justify-center">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full blur-xl opacity-50 animate-pulse" />
-            <div className="relative w-24 h-24 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+            <div className="absolute inset-0 bg-linear-to-br from-purple-500 to-blue-500 rounded-full blur-xl opacity-50 animate-pulse" />
+            <div className="relative w-24 h-24 bg-linear-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
               <Bell className="w-12 h-12 text-white" />
             </div>
           </div>
@@ -38,14 +38,14 @@ export default function ComingSoon() {
 
         {/* Title */}
         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-zinc-900 dark:text-white mb-6">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400">
+          <span className="bg-clip-text text-transparent bg-linear-to-br from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400">
             Coming Soon
           </span>
         </h1>
 
         {/* Description */}
         <p className="text-xl text-zinc-600 dark:text-zinc-400 mb-8 max-w-xl mx-auto leading-relaxed">
-          We're working hard to bring you an amazing demo experience. Stay tuned for exciting features and updates!
+          We&apos;re working hard to bring you an amazing demo experience. Stay tuned for exciting features and updates!
         </p>
 
         {/* Features Preview */}
@@ -69,10 +69,10 @@ export default function ComingSoon() {
           <Button
             asChild
             size="lg"
-            className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white group"
+            className="relative overflow-hidden bg-linear-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white group"
           >
             <a href="mailto:contact@tellmemore.com" className="flex items-center gap-2">
-              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-linear-to-br from-transparent via-white/20 to-transparent" />
               <Mail className="w-5 h-5" />
               <span className="relative z-10">Get Notified</span>
             </a>
